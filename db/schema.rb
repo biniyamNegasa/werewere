@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_055624) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_22_034143) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "chats", force: :cascade do |t|
     t.string "name"
-    t.integer "chat_type"
+    t.integer "chat_type", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -59,14 +59,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_055624) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "username"
-    t.integer "status"
+    t.integer "status", default: 0
     t.datetime "last_seen_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "contacts", "contacts"
   add_foreign_key "contacts", "users"
+  add_foreign_key "contacts", "users", column: "contact_id"
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
   add_foreign_key "participants", "chats"
