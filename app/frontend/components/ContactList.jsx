@@ -12,7 +12,7 @@ export default function ContactList({ contacts }) {
       {contacts.map((contact) => (
         <li key={contact.id}>
           <Link
-            href={chats_path({ user_id: contact.id })} // Use the route helper for POST to create chat
+            href={chats_path()} // Use the route helper for POST to create chat
             method="post"
             data={{ user_id: contact.id }}
             as="button"
