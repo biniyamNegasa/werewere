@@ -1,8 +1,24 @@
 Rails.application.routes.draw do
-  devise_for :users
+  get "home/index"
+  devise_for :users, controllers: {
+    sessions: "users/sessions",
+    registrations: "users/registrations"
+    # omniauth_callbacks: "users/omniauth_callbacks",
+    # passwords: "users/passwords"
+  }
 
-  resources :chats, only: [:index, :show, :create]
-  get 'inertia-example', to: 'inertia_example#index'
+  authenticated :user do
+    root to: redirect("/chats"), as: :authenticated_root
+  end
+
+  root to: "home#index"
+
+  resources :chats, only: [ :index, :create ]
+
+
+  get "/chats/:id", to: redirect("/chats", status: 302), as: :chat
+
+  # get "inertia-example", to: "inertia_example#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

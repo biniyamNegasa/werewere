@@ -1,0 +1,36 @@
+<div style="text-align: center; padding: 50px; font-family: sans-serif;">
+  <h1>Welcome to Your Chat App!</h1>
+  <p>Please log in or sign up to continue.</p>
+
+  <% if user_signed_in? %>
+    <p>You are already logged in as
+      <%= current_user.email %>.</p>
+    <%= link_to "Go to Chats",
+    authenticated_root_path,
+    style:
+      "padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;" %>
+    <form
+      action="<%= destroy_user_session_path %>"
+      method="post"
+      style="display: inline-block; margin-left: 10px;"
+    >
+      <input type="hidden" name="_method" value="delete">
+      <%= csrf_tag %>
+      <button
+        type="submit"
+        style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;"
+      >Sign Out</button>
+    </form>
+  <% else %>
+    <p>
+      <%= link_to "Log In",
+      new_user_session_path,
+      style:
+        "padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px;" %>
+      <%= link_to "Sign Up",
+      new_user_registration_path,
+      style:
+        "padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;" %>
+    </p>
+  <% end %>
+</div>

@@ -1,33 +1,25 @@
-import { chat_path } from "@/routes";
-import { Link } from "@inertiajs/react";
 import PropTypes from "prop-types";
 
 export default function ChatList({ chats, onSelectChat }) {
   if (!chats || chats.length === 0) {
-    return <p className="text-muted-foreground p-4">No conversations yet.</p>;
+    return (
+      <p className="text-muted-foreground p-4 text-center">
+        No conversations yet. Add a contact to start one!
+      </p>
+    );
   }
 
   return (
-    <ul>
+    <ul className="space-y-2">
       {chats.map((chat) => (
         <li
           key={chat.id}
           onClick={() => onSelectChat(chat)}
           className="w-full text-left p-2 cursor-pointer hover:bg-secondary rounded-md transition-colors"
         >
-          {/* Display the other user's username or email */}
-          <Link
-            href={chat_path({ id: chat.id })}
-            className="block w-full text-left"
-            preserveState
-            preserveScroll
-          >
-            <span className="font-semibold">
-              {chat.users[0]?.username ||
-                chat.users[0]?.email ||
-                "Unknown User"}
-            </span>
-          </Link>
+          <span className="font-semibold">
+            {chat.users[0]?.username || chat.users[0]?.email || "Unknown User"}
+          </span>
           {/* You could add a last message preview here */}
         </li>
       ))}

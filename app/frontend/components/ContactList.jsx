@@ -4,15 +4,19 @@ import { chats_path } from "@/routes"; // Explicitly import the route helper
 
 export default function ContactList({ contacts }) {
   if (!contacts || contacts.length === 0) {
-    return <p className="text-muted-foreground p-4">No contacts added yet.</p>;
+    return (
+      <p className="text-muted-foreground p-4 text-center">
+        No contacts added yet. Use search to find new users.
+      </p>
+    );
   }
 
   return (
-    <ul>
+    <ul className="space-y-2">
       {contacts.map((contact) => (
         <li key={contact.id}>
           <Link
-            href={chats_path()} // Use the route helper for POST to create chat
+            href={chats_path()} // POST to /chats for creation
             method="post"
             data={{ user_id: contact.id }}
             as="button"

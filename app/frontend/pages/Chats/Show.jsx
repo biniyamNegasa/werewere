@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Head, router } from "@inertiajs/react";
 import PropTypes from "prop-types";
-import { useChatChannel } from "@/hooks/useChatChannel"; // Our custom hook
+import { useChatChannel } from "@/hooks/useChatChannel";
+import { usePresence } from "@/hooks/usePresence";
 import { Input } from "@/components/ui/input"; // shadcn
 import { Button } from "@/components/ui/button"; // shadcn
-import { format } from "date-fns"; // npm install date-fns
+import { format, formatDistanceToNowStrict } from "date-fns"; // npm install date-fns
 import { chats_path } from "@/routes";
 
 export default function ChatShow({ chat, currentUser }) {
@@ -29,6 +30,8 @@ export default function ChatShow({ chat, currentUser }) {
 
   // Use our custom Action Cable hook
   const { speak } = useChatChannel(chat.id, handleMessageReceived);
+
+  const allUsersPresence = usePresence();
 
   // Auto-scroll to bottom on new message
   useEffect(() => {
@@ -64,10 +67,33 @@ export default function ChatShow({ chat, currentUser }) {
 
   // Determine the other user's info for a direct chat header
   const otherUser = chat.users.find((user) => user.id !== currentUser.id);
+
+  const currentOtherUserPresence = allUsersPresence[otherUser?.id] || otherUser;
+
   const chatName =
     chat.chat_type === "direct_chat"
       ? otherUser?.username || otherUser?.email || "Direct Chat"
       : chat.name;
+
+  const displayStatus = () => {
+    if (!otherUser) return "";
+
+    if (currentOtherUserPresence.status === "online") {
+      return <span className="text-green-500 font-medium ml-2">Online</span>;
+    } else if (currentOtherUserPresence.last_seen_at) {
+      const lastSeen = new Date(currentOtherUserPresence.last_seen_at);
+      const distance = formatDistanceToNowStrict(lastSeen, {
+        addSuffix: true,
+      });
+
+      return (
+        <span className="text-muted-foreground text-sm ml-2">
+          last seen {distance}
+        </span>
+      );
+    }
+    return "";
+  };
 
   return (
     <>
@@ -88,6 +114,7 @@ export default function ChatShow({ chat, currentUser }) {
           </Button>
           <h1 className="font-semibold text-lg">{chatName}</h1>
           {/* Add online/offline status here later */}
+          {displayStatus()}
         </header>
 
         <section

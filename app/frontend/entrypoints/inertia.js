@@ -2,8 +2,11 @@ import { createInertiaApp } from "@inertiajs/react";
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { createConsumer } from "@rails/actioncable";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
-window.cable = createConsumer();
+if (!window.cable) {
+  window.cable = createConsumer();
+}
 
 createInertiaApp({
   // Set default page title
@@ -36,7 +39,9 @@ createInertiaApp({
 
   setup({ el, App, props }) {
     if (el) {
-      createRoot(el).render(createElement(App, props));
+      createRoot(el).render(
+        createElement(ThemeProvider, null, createElement(App, props)),
+      );
     } else {
       console.error(
         "Missing root element.\n\n" +
