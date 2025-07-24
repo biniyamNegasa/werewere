@@ -1,29 +1,95 @@
 import PropTypes from "prop-types";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
 
 export default function ChatList({ chats, onSelectChat }) {
   if (!chats || chats.length === 0) {
     return (
-      <p className="text-muted-foreground p-4 text-center">
-        No conversations yet. Add a contact to start one!
-      </p>
+      <div className="flex flex-col items-center justify-center h-64 text-center p-6">
+        <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-4">
+          <span className="text-2xl">💬</span>
+        </div>
+        <p className="text-muted-foreground font-medium">
+          No conversations yet
+        </p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Start a conversation with your contacts
+        </p>
+      </div>
     );
   }
 
+  const getInitials = (user) => {
+    if (user?.username) {
+      return user.username.substring(0, 2).toUpperCase();
+    }
+    return user?.email?.substring(0, 2).toUpperCase() || "??";
+  };
+
+  const getLastMessageTime = (chat) => {
+    if (chat.messages && chat.messages.length > 0) {
+      const lastMessage = chat.messages[chat.messages.length - 1];
+      return formatDistanceToNow(new Date(lastMessage.created_at), {
+        addSuffix: true,
+      });
+    }
+    return "";
+  };
+
+  const getLastMessagePreview = (chat) => {
+    if (chat.messages && chat.messages.length > 0) {
+      const lastMessage = chat.messages[chat.messages.length - 1];
+      return lastMessage.body.length > 50
+        ? lastMessage.body.substring(0, 50) + "..."
+        : lastMessage.body;
+    }
+    return "No messages yet";
+  };
+
   return (
-    <ul className="space-y-2">
-      {chats.map((chat) => (
-        <li
-          key={chat.id}
-          onClick={() => onSelectChat(chat)}
-          className="w-full text-left p-2 cursor-pointer hover:bg-secondary rounded-md transition-colors"
-        >
-          <span className="font-semibold">
-            {chat.users[0]?.username || chat.users[0]?.email || "Unknown User"}
-          </span>
-          {/* You could add a last message preview here */}
-        </li>
-      ))}
-    </ul>
+    <div className="p-2">
+      {chats.map((chat) => {
+        const otherUser = chat.users[0];
+        const displayName =
+          otherUser?.username || otherUser?.email || "Unknown User";
+
+        return (
+          <div
+            key={chat.id}
+            onClick={() => onSelectChat(chat)}
+            className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors group"
+          >
+            <Avatar className="w-12 h-12 border-2 border-orange-100 dark:border-orange-900/20">
+              <AvatarFallback className="bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 font-medium">
+                {getInitials(otherUser)}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-foreground truncate">
+                  {displayName}
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  {getLastMessageTime(chat)}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground truncate mt-1">
+                {getLastMessagePreview(chat)}
+              </p>
+            </div>
+
+            {/* Unread badge - placeholder for future implementation */}
+            {chat.unread_count > 0 && (
+              <Badge className="bg-orange-500 text-white">
+                {chat.unread_count}
+              </Badge>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

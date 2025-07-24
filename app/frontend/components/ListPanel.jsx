@@ -1,33 +1,106 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Menu, Plus } from "lucide-react";
 import ChatList from "@/components/ChatList";
 import ContactList from "@/components/ContactList";
+import SettingsPanel from "@/components/SettingsPanel";
 
 export default function ListPanel({
   chats,
   contacts,
   activeList,
   onSelectChat,
+  onMobileMenuToggle,
 }) {
-  return (
-    <div className="h-full flex flex-col bg-background">
-      <header className="p-4 border-b bg-background">
-        {/* Placeholder for search input */}
-        <h1 className="text-xl font-bold">
-          {activeList === "contacts" ? "Contacts" : "Conversations"}
-        </h1>
-      </header>
+  const [searchQuery, setSearchQuery] = useState("");
 
-      <section className="flex-grow overflow-y-auto p-4">
-        {activeList === "chats" && (
-          <ChatList chats={chats} onSelectChat={onSelectChat} />
-        )}
-        {activeList === "contacts" && <ContactList contacts={contacts} />}
-        {activeList === "settings" && (
-          <div className="text-muted-foreground p-4">
-            Settings content will go here.
+  const getTitle = () => {
+    switch (activeList) {
+      case "contacts":
+        return "Contacts";
+      case "settings":
+        return "Settings";
+      default:
+        return "Chats";
+    }
+  };
+
+  const filteredChats = chats.filter((chat) => {
+    if (!searchQuery) return true;
+    const otherUser = chat.users[0];
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      otherUser?.username?.toLowerCase().includes(searchTerm) ||
+      otherUser?.email?.toLowerCase().includes(searchTerm) ||
+      chat.name?.toLowerCase().includes(searchTerm)
+    );
+  });
+
+  const filteredContacts = contacts.filter((contact) => {
+    if (!searchQuery) return true;
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      contact.username?.toLowerCase().includes(searchTerm) ||
+      contact.email?.toLowerCase().includes(searchTerm)
+    );
+  });
+
+  return (
+    <div className="h-full flex flex-col bg-card w-full">
+      {/* Header */}
+      <header className="p-4 border-b border-border bg-card/50 backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onMobileMenuToggle}
+              className="md:hidden"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            <h1 className="text-xl font-semibold text-foreground">
+              {getTitle()}
+            </h1>
+          </div>
+          {(activeList === "chats" || activeList === "contacts") && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Search Bar */}
+        {(activeList === "chats" || activeList === "contacts") && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              type="text"
+              placeholder={`Search ${activeList}...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-background/50 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+            />
           </div>
         )}
-      </section>
+      </header>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        {activeList === "chats" && (
+          <ChatList chats={filteredChats} onSelectChat={onSelectChat} />
+        )}
+        {activeList === "contacts" && (
+          <ContactList contacts={filteredContacts} />
+        )}
+        {activeList === "settings" && <SettingsPanel />}
+      </div>
     </div>
   );
 }
@@ -37,4 +110,5 @@ ListPanel.propTypes = {
   contacts: PropTypes.array.isRequired,
   activeList: PropTypes.string.isRequired,
   onSelectChat: PropTypes.func.isRequired,
+  onMobileMenuToggle: PropTypes.func,
 };
