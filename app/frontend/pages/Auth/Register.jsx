@@ -10,16 +10,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageCircle, ArrowLeft } from "lucide-react";
+import { MessageCircle, ArrowLeft, AlertCircle } from "lucide-react";
 import {
   new_user_session_path,
   user_registration_path,
   root_path,
 } from "@/routes";
-import { useToast } from "@/hooks/useToast";
 
 export default function Register({ errors: initialErrors }) {
-  const { toast } = useToast();
   const { data, setData, post, processing, errors, reset } = useForm({
     user: {
       email: "",
@@ -33,10 +31,6 @@ export default function Register({ errors: initialErrors }) {
     post(user_registration_path(), {
       onSuccess: () => {
         reset();
-        toast({
-          title: "Welcome to WereWere!",
-          description: "Your account has been created successfully.",
-        });
       },
       onError: (backendErrors) => {
         console.error("Registration errors:", backendErrors);
@@ -83,11 +77,18 @@ export default function Register({ errors: initialErrors }) {
                     placeholder="your@email.com"
                     value={data.user.email}
                     onChange={(e) => setData("user.email", e.target.value)}
-                    className="focus:ring-orange-500 focus:border-orange-500"
+                    className={`focus:ring-orange-500 focus:border-orange-500 ${
+                      errors.email
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                    }`}
                     required
                   />
                   {errors.email && (
-                    <p className="text-destructive text-sm">{errors.email}</p>
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.email}
+                    </p>
                   )}
                 </div>
 
@@ -98,11 +99,16 @@ export default function Register({ errors: initialErrors }) {
                     type="password"
                     value={data.user.password}
                     onChange={(e) => setData("user.password", e.target.value)}
-                    className="focus:ring-orange-500 focus:border-orange-500"
+                    className={`focus:ring-orange-500 focus:border-orange-500 ${
+                      errors.password
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                    }`}
                     required
                   />
                   {errors.password && (
-                    <p className="text-destructive text-sm">
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <AlertCircle className="w-4 h-4 mr-1" />
                       {errors.password}
                     </p>
                   )}
@@ -119,11 +125,16 @@ export default function Register({ errors: initialErrors }) {
                     onChange={(e) =>
                       setData("user.password_confirmation", e.target.value)
                     }
-                    className="focus:ring-orange-500 focus:border-orange-500"
+                    className={`focus:ring-orange-500 focus:border-orange-500 ${
+                      errors.password_confirmation
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                    }`}
                     required
                   />
                   {errors.password_confirmation && (
-                    <p className="text-destructive text-sm">
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <AlertCircle className="w-4 h-4 mr-1" />
                       {errors.password_confirmation}
                     </p>
                   )}
