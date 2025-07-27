@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import { Head, useForm, Link } from "@inertiajs/react";
-import PropTypes from "prop-types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,17 +10,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MessageCircle, ArrowLeft } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { MessageCircle, ArrowLeft, AlertCircle } from "lucide-react";
 import {
   new_user_registration_path,
   user_session_path,
   root_path,
 } from "@/routes";
-import { useToast } from "@/hooks/useToast";
 
 export default function Login({ alert, notice }) {
-  const { toast } = useToast();
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const { data, setData, post, processing, errors } = useForm({
     user: {
       email: "",
       password: "",
@@ -30,30 +27,16 @@ export default function Login({ alert, notice }) {
     },
   });
 
-  useEffect(() => {
-    if (alert) {
-      toast({
-        variant: "destructive",
-        title: "Login Error",
-        description: alert,
-      });
-    }
-    if (notice) {
-      toast({
-        title: "Notice",
-        description: notice,
-      });
-    }
-  }, [alert, notice, toast]);
-
   const handleSubmit = (e) => {
     e.preventDefault();
     post(user_session_path(), {
       onSuccess: () => {
-        reset();
-        toast({
-          title: "Welcome back!",
-          description: "You have been successfully logged in.",
+        setData({
+          user: {
+            email: "",
+            password: "",
+            remember_me: false,
+          },
         });
       },
       onError: (backendErrors) => {
@@ -92,6 +75,15 @@ export default function Login({ alert, notice }) {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {(alert || notice) && (
+                <Alert
+                  variant={alert ? "destructive" : "default"}
+                  className="mb-2"
+                >
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{alert || notice}</AlertDescription>
+                </Alert>
+              )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -101,11 +93,18 @@ export default function Login({ alert, notice }) {
                     placeholder="your@email.com"
                     value={data.user.email}
                     onChange={(e) => setData("user.email", e.target.value)}
-                    className="focus:ring-orange-500 focus:border-orange-500"
+                    className={`focus:ring-orange-500 focus:border-orange-500 ${
+                      errors.email
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                    }`}
                     required
                   />
                   {errors.email && (
-                    <p className="text-destructive text-sm">{errors.email}</p>
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.email}
+                    </p>
                   )}
                 </div>
 
@@ -116,11 +115,16 @@ export default function Login({ alert, notice }) {
                     type="password"
                     value={data.user.password}
                     onChange={(e) => setData("user.password", e.target.value)}
-                    className="focus:ring-orange-500 focus:border-orange-500"
+                    className={`focus:ring-orange-500 focus:border-orange-500 ${
+                      errors.password
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                    }`}
                     required
                   />
                   {errors.password && (
-                    <p className="text-destructive text-sm">
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <AlertCircle className="w-4 h-4 mr-1" />
                       {errors.password}
                     </p>
                   )}
@@ -139,8 +143,12 @@ export default function Login({ alert, notice }) {
                   </Label>
                 </div>
 
+                {/* General authentication errors */}
                 {errors.error && (
-                  <p className="text-destructive text-sm">{errors.error}</p>
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.error}</AlertDescription>
+                  </Alert>
                 )}
 
                 <Button
@@ -171,7 +179,4 @@ export default function Login({ alert, notice }) {
   );
 }
 
-Login.propTypes = {
-  alert: PropTypes.string,
-  notice: PropTypes.string,
-};
+Login.propTypes = {};

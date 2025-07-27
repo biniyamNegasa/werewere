@@ -15,16 +15,16 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    self.resource = warden.authenticate!(auth_options)
-    set_flash_message!(:notice, :signed_in)
+    self.resource = warden.authenticate(auth_options)
 
-    sign_in(resource_name, resource)
-
-    respond_with resource, location: after_sign_in_path_for(resource)
-  rescue Warden::ScopeNotSet
-
-    set_flash_message!(:alert, :invalid)
-    redirect_to new_user_session_path
+    if resource
+      set_flash_message!(:notice, :signed_in)
+      sign_in(resource_name, resource)
+      respond_with resource, location: after_sign_in_path_for(resource)
+    else
+      flash[:alert] = "Invalid email or password"
+      redirect_to new_user_session_path
+    end
   end
 
   # DELETE /resource/sign_out
