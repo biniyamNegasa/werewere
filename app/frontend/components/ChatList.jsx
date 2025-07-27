@@ -28,9 +28,8 @@ export default function ChatList({ chats, onSelectChat }) {
   };
 
   const getLastMessageTime = (chat) => {
-    if (chat.messages && chat.messages.length > 0) {
-      const lastMessage = chat.messages[chat.messages.length - 1];
-      return formatDistanceToNow(new Date(lastMessage.created_at), {
+    if (chat.last_message) {
+      return formatDistanceToNow(new Date(chat.last_message.created_at), {
         addSuffix: true,
       });
     }
@@ -38,11 +37,10 @@ export default function ChatList({ chats, onSelectChat }) {
   };
 
   const getLastMessagePreview = (chat) => {
-    if (chat.messages && chat.messages.length > 0) {
-      const lastMessage = chat.messages[chat.messages.length - 1];
-      return lastMessage.body.length > 50
-        ? lastMessage.body.substring(0, 50) + "..."
-        : lastMessage.body;
+    if (chat.last_message) {
+      return chat.last_message.body.length > 50
+        ? chat.last_message.body.substring(0, 50) + "..."
+        : chat.last_message.body;
     }
     return "No messages yet";
   };

@@ -14,6 +14,9 @@ Rails.application.routes.draw do
   root to: "home#index"
 
   resources :chats, only: [ :index, :create ]
+  resources :participants, only: [] do
+    patch :update_last_read, on: :collection
+  end
 
 
   get "/chats/:id", to: redirect("/chats", status: 302), as: :chat

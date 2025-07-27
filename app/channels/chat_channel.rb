@@ -29,6 +29,22 @@ class ChatChannel < ApplicationCable::Channel
           only: [ :id, :body, :user_id, :created_at ]
         )
       )
+
+      @chat.participants.where.not(user_id: current_user.id).each do |participant|
+        ChatListChannel.broadcast_to(participant.user, {
+          type: "chat_list_update",
+          chat_id: @chat.id,
+          unread_count: participant.unread_messages_count,
+          last_message: message.as_json(
+            include: {
+              user: {
+                only: [ :id, :username, :email ]
+              }
+            },
+            only: [ :id, :body, :user_id, :created_at ]
+          )
+        })
+      end
     else
       Rails.logger.error "Failed to save message: #{message.errors.full_messages.to_sentence}"
     end

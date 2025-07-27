@@ -1,3 +1,4 @@
+import { router } from "@inertiajs/react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useChatChannel } from "@/hooks/useChatChannel";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Send, MoreVertical, Phone, Video } from "lucide-react";
 import { format, formatDistanceToNowStrict } from "date-fns";
+import { update_last_read_participants_path } from "@/routes";
 
 export default function ChatWindow({ activeChat, currentUser, onBack }) {
   const [messages, setMessages] = useState([]);
@@ -58,6 +60,17 @@ export default function ChatWindow({ activeChat, currentUser, onBack }) {
     window.addEventListener("resize", updateChatBodyHeight);
     return () => window.removeEventListener("resize", updateChatBodyHeight);
   }, [chatHeaderRef, chatComposerRef]);
+  useEffect(() => {
+    if (!activeChat) return;
+
+    router.patch(
+      update_last_read_participants_path(),
+      {
+        chat_id: activeChat.id,
+      },
+      { only: [], preserveState: true, preserveScroll: true },
+    );
+  }, [activeChat]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -70,7 +83,7 @@ export default function ChatWindow({ activeChat, currentUser, onBack }) {
   if (!activeChat) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20">
-        <div className="text-center">
+        <div className="text-center flex flex-col justify-center items-center">
           <div className="w-24 h-24 bg-orange-200 dark:bg-orange-800/30 rounded-full flex items-center justify-center mb-6">
             <span className="text-4xl">💬</span>
           </div>
