@@ -50,27 +50,37 @@ export const useChatStore = create((set, get) => ({
     const newMessage = data.last_message;
     if (!newMessage || !newMessage.id) return;
 
-    set((state) => ({
-      chats: state.chats.map((chat) => {
-        if (chat.id === data.chat_id) {
-          const messageExists = chat.messages.some(
-            (msg) => msg.id === newMessage.id,
-          );
-          const newUnreadCount =
-            get().activeChatId === data.chat_id ? 0 : data.unread_count;
+    set((state) => {
+      // Find the chat that needs to be updated.
+      const targetChat = state.chats.find((c) => c.id === data.chat_id);
+      if (!targetChat) return {}; // Do nothing if the chat isn't found
 
-          return {
-            ...chat,
-            last_message: newMessage,
-            unread_count: newUnreadCount,
-            messages: messageExists
-              ? chat.messages
-              : [...chat.messages, newMessage],
-          };
-        }
-        return chat;
-      }),
-    }));
+      // Check if the message already exists to prevent duplicates.
+      const messageExists = targetChat.messages.some(
+        (msg) => msg.id === newMessage.id,
+      );
+
+      // Determine the new unread count.
+      const newUnreadCount =
+        get().activeChatId === data.chat_id ? 0 : data.unread_count;
+
+      // Create the fully updated chat object.
+      const updatedChat = {
+        ...targetChat,
+        last_message: newMessage,
+        unread_count: newUnreadCount,
+        messages: messageExists
+          ? targetChat.messages
+          : [...targetChat.messages, newMessage],
+      };
+
+      const reorderedChats = [
+        updatedChat,
+        ...state.chats.filter((c) => c.id !== data.chat_id),
+      ];
+
+      return { chats: reorderedChats };
+    });
   },
 
   setActiveChat: (chatId) => {
