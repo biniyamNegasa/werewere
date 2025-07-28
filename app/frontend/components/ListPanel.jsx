@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,15 +6,25 @@ import { Search, Menu, Plus } from "lucide-react";
 import ChatList from "@/components/ChatList";
 import ContactList from "@/components/ContactList";
 import SettingsPanel from "@/components/SettingsPanel";
+import { useChatStore } from "@/stores/chatStore";
 
-export default function ListPanel({
-  chats,
-  contacts,
-  activeList,
-  onSelectChat,
-  onMobileMenuToggle,
-}) {
+export default function ListPanel({ activeList, onMobileMenuToggle }) {
   const [searchQuery, setSearchQuery] = useState("");
+
+  const chats = useChatStore((state) => state.chats);
+  const currentUser = useChatStore((state) => state.currentUser);
+  const contacts = useChatStore((state) => state.contacts);
+  const setActiveChat = useChatStore((state) => state.setActiveChat);
+
+  const processedChats = useMemo(() => {
+    if (!currentUser) return [];
+    return chats.map((chat) => ({
+      ...chat,
+      users: Array.isArray(chat.users)
+        ? chat.users.filter((user) => user.id !== currentUser.id)
+        : [],
+    }));
+  }, [chats, currentUser]);
 
   const getTitle = () => {
     switch (activeList) {
@@ -27,7 +37,7 @@ export default function ListPanel({
     }
   };
 
-  const filteredChats = chats.filter((chat) => {
+  const filteredChats = processedChats.filter((chat) => {
     if (!searchQuery) return true;
     const otherUser = chat.users[0];
     const searchTerm = searchQuery.toLowerCase();
@@ -94,7 +104,10 @@ export default function ListPanel({
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {activeList === "chats" && (
-          <ChatList chats={filteredChats} onSelectChat={onSelectChat} />
+          <ChatList
+            chats={filteredChats}
+            onSelectChat={(chat) => setActiveChat(chat.id)}
+          />
         )}
         {activeList === "contacts" && (
           <ContactList contacts={filteredContacts} />
@@ -106,9 +119,6 @@ export default function ListPanel({
 }
 
 ListPanel.propTypes = {
-  chats: PropTypes.array.isRequired,
-  contacts: PropTypes.array.isRequired,
   activeList: PropTypes.string.isRequired,
-  onSelectChat: PropTypes.func.isRequired,
   onMobileMenuToggle: PropTypes.func,
 };

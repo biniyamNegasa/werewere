@@ -5,4 +5,5 @@ class Chat < ApplicationRecord
   has_many :users, through: :participants
 
   has_many :messages, -> { order(created_at: :asc) }, dependent: :destroy
+  has_one :last_message, -> { order(created_at: :desc) }, class_name: "Message"
 end

@@ -30,7 +30,7 @@ class ChatChannel < ApplicationCable::Channel
         )
       )
 
-      @chat.participants.where.not(user_id: current_user.id).each do |participant|
+      @chat.participants.each do |participant|
         ChatListChannel.broadcast_to(participant.user, {
           type: "chat_list_update",
           chat_id: @chat.id,
