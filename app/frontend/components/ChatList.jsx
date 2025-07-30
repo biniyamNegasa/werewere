@@ -2,8 +2,9 @@ import PropTypes from "prop-types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
-export default function ChatList({ chats, onSelectChat }) {
+export default function ChatList({ chats, onSelectChat, activeChat }) {
   if (!chats || chats.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center p-6">
@@ -56,7 +57,12 @@ export default function ChatList({ chats, onSelectChat }) {
           <div
             key={chat.id}
             onClick={() => onSelectChat(chat)}
-            className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors group"
+            className={cn(
+              "flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors group",
+              chat.id === activeChat?.id
+                ? "bg-orange-100 dark:bg-orange-900/20 border-l-4 border-orange-500 "
+                : "hover:bg-orange-50 dark:hover:bg-orange-900/10",
+            )}
           >
             <Avatar className="w-12 h-12 border-2 border-orange-100 dark:border-orange-900/20">
               <AvatarFallback className="bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 font-medium">

@@ -72,7 +72,7 @@ export default function ChatsIndex(props) {
 
         <div className="flex flex-1 overflow-hidden">
           <div
-            className={`${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:relative z-50 transition-transform duration-300 ease-in-out`}
+            className={`${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} h-full md:translate-x-0 fixed md:relative z-50 transition-transform duration-300 ease-in-out`}
           >
             <AppNavigationRail
               activeList={activeList}
@@ -97,6 +97,7 @@ export default function ChatsIndex(props) {
                 activeList={activeList}
                 setActiveList={setActiveList}
                 onMobileMenuToggle={() => setIsMobileMenuOpen(true)}
+                activeChat={activeChat}
               />
             </div>
 

@@ -13,6 +13,7 @@ export default function ListPanel({
   activeList,
   setActiveList,
   onMobileMenuToggle,
+  activeChat,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddContactOpen, setIsAddContactOpen] = useState(false);
@@ -110,6 +111,7 @@ export default function ListPanel({
           <ChatList
             chats={filteredChats}
             onSelectChat={(chat) => setActiveChat(chat.id)}
+            activeChat={activeChat}
           />
         )}
         {activeList === "contacts" && (
