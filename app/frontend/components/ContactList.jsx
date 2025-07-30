@@ -3,7 +3,7 @@ import { Link } from "@inertiajs/react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { chats_path } from "@/routes";
 
-export default function ContactList({ contacts }) {
+export default function ContactList({ contacts, setActiveList }) {
   if (!contacts || contacts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center p-6">
@@ -35,6 +35,8 @@ export default function ContactList({ contacts }) {
           data={{ user_id: contact.id }}
           as="button"
           className="w-full"
+          preserveScroll
+          onSuccess={() => setActiveList("chats")}
         >
           <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/10 transition-colors group">
             <div className="flex items-center space-x-3">
@@ -64,4 +66,5 @@ export default function ContactList({ contacts }) {
 
 ContactList.propTypes = {
   contacts: PropTypes.array.isRequired,
+  setActiveList: PropTypes.func.isRequired,
 };

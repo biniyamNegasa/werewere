@@ -5,13 +5,20 @@ import AppNavigationRail from "@/components/AppNavigationRail";
 import ListPanel from "@/components/ListPanel";
 import ChatWindow from "@/components/ChatWindow";
 import { useChatStore } from "@/stores/chatStore";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 export default function ChatsIndex(props) {
-  const initialize = useChatStore((state) => state.initialize);
+  console.log("ChatsIndex props:", props);
+
+  const syncProps = useChatStore((state) => state.syncProps);
   const chats = useChatStore((state) => state.chats);
   const activeChatId = useChatStore((state) => state.activeChatId);
   const setActiveChat = useChatStore((state) => state.setActiveChat);
   const currentUser = useChatStore((state) => state.currentUser);
+
+  console.log("activeChatId: ", activeChatId);
+  console.log("chats: ", chats);
 
   const activeChat = useMemo(
     () => chats.find((chat) => chat.id === activeChatId),
@@ -22,10 +29,9 @@ export default function ChatsIndex(props) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showFlashMessage, setShowFlashMessage] = useState(true);
 
-  // Initialize the store with the data from Inertia on the first render
   useEffect(() => {
-    initialize(props);
-  }, []);
+    syncProps(props);
+  }, [props]);
 
   useEffect(() => {
     if (props.flash?.alert || props.flash?.notice) {
@@ -48,7 +54,20 @@ export default function ChatsIndex(props) {
       <main className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
         {/* Flash Messages */}
         {showFlashMessage && (props.flash?.alert || props.flash?.notice) && (
-          <div className="p-4 border-b">{/* ... flash message JSX ... */}</div>
+          <div className="p-4 border-b border-border">
+            {props.flash.alert && (
+              <Alert variant="destructive" className="mb-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{props.flash.alert}</AlertDescription>
+              </Alert>
+            )}
+            {props.flash.notice && (
+              <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200">
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>{props.flash.notice}</AlertDescription>
+              </Alert>
+            )}
+          </div>
         )}
 
         <div className="flex flex-1 overflow-hidden">
@@ -76,6 +95,7 @@ export default function ChatsIndex(props) {
             >
               <ListPanel
                 activeList={activeList}
+                setActiveList={setActiveList}
                 onMobileMenuToggle={() => setIsMobileMenuOpen(true)}
               />
             </div>

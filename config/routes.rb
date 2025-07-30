@@ -18,6 +18,8 @@ Rails.application.routes.draw do
     patch :update_last_read, on: :collection
   end
 
+  resources :contacts, only: [ :create ]
+  get "users/search", to: "users#search"
 
   get "/chats/:id", to: redirect("/chats", status: 302), as: :chat
 

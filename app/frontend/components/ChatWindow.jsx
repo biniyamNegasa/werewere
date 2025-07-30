@@ -1,3 +1,4 @@
+import { Link } from "@inertiajs/react";
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { usePresence } from "@/hooks/usePresence";
@@ -5,12 +6,27 @@ import { useChatStore } from "@/stores/chatStore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Send, MoreVertical, Phone, Video } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  ArrowLeft,
+  Send,
+  MoreVertical,
+  UserPlus,
+  Phone,
+  Video,
+} from "lucide-react";
 import { format, formatDistanceToNowStrict } from "date-fns";
+import { contacts_path } from "@/routes";
 
 export default function ChatWindow({ activeChat, onBack }) {
   const currentUser = useChatStore((state) => state.currentUser);
   const speak = useChatStore((state) => state.speak);
+  const contacts = useChatStore((state) => state.contacts);
 
   const [newMessageBody, setNewMessageBody] = useState("");
 
@@ -57,6 +73,8 @@ export default function ChatWindow({ activeChat, onBack }) {
       ? otherUser?.username || otherUser?.email || "Direct Chat"
       : activeChat.name;
 
+  const isDirectChat = activeChat.chat_type === "direct_chat";
+  const isContact = contacts.some((contact) => contact.id === otherUser?.id);
   const currentOtherUserPresence = allUsersPresence[otherUser?.id] || otherUser;
 
   const getInitials = (user) => {
@@ -123,9 +141,34 @@ export default function ChatWindow({ activeChat, onBack }) {
           >
             <Video className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <MoreVertical className="w-5 h-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {/* This item only shows if it's a direct chat and the other user is NOT already a contact */}
+              {isDirectChat && !isContact && otherUser && (
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  className="cursor-pointer"
+                >
+                  <Link
+                    href={contacts_path()}
+                    method="post"
+                    data={{ contact_id: otherUser.id }}
+                    as="button"
+                    className="w-full flex items-center"
+                    preserveScroll
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    <span>Add to Contacts</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 

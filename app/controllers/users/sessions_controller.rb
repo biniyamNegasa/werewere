@@ -33,6 +33,7 @@ class Users::SessionsController < Devise::SessionsController
     set_flash_message!(:notice, :signed_out) if signed_out
   end
 
+
   protected
 
   def auth_options
@@ -47,14 +48,6 @@ class Users::SessionsController < Devise::SessionsController
     root_path
   end
 
-  def respond_to_on_destroy
-    if request.inertia?
-      redirect_to after_sign_out_path_for(resource_name)
-      nil
-    else
-      super
-    end
-  end
 
   # If you have extra params to permit, append them to the sanitizer.
   # def configure_sign_in_params

@@ -20,15 +20,21 @@ export const useChatStore = create((set, get) => ({
   chatListSubscription: null,
 
   // --- ACTIONS ---
-  initialize: (initialData) => {
-    const { chats, contacts, auth, preselectedChat } = initialData;
+  syncProps: (props) => {
+    const { chats, contacts, auth, preselectedChat, flash } = props;
+
     set({
       chats: chats || [],
       contacts: contacts || [],
       currentUser: auth.user,
-      activeChatId: preselectedChat?.id || null,
+      activeChatId: preselectedChat
+        ? preselectedChat.id
+        : flash?.active_chat_id || get().activeChatId,
     });
-    get().subscribeToChatList();
+
+    if (!get().chatListSubscription) {
+      get().subscribeToChatList();
+    }
   },
 
   subscribeToChatList: () => {
@@ -37,13 +43,22 @@ export const useChatStore = create((set, get) => ({
       { channel: "ChatListChannel" },
       {
         received: (data) => {
-          if (data.type === "chat_list_update") {
+          if (data.type === "new_chat") {
+            get().addNewChat(data.chat);
+          } else if (data.type === "chat_list_update") {
             get().handleChatUpdate(data);
           }
         },
       },
     );
     set({ chatListSubscription: subscription });
+  },
+
+  addNewChat: (newChat) => {
+    set((state) => {
+      if (state.chats.some((chat) => chat.id === newChat.id)) return {};
+      return { chats: [newChat, ...state.chats] };
+    });
   },
 
   handleChatUpdate: (data) => {

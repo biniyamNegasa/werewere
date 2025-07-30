@@ -25,7 +25,14 @@ class ChatsController < ApplicationController
     chat = ChatService.new.find_or_create_direct_chat(current_user, other_user)
 
     if chat
-      redirect_to chats_path, flash: { active_chat_id: chat.id }
+
+      serialized_chat_for_other_user = serialize_chat(chat, for_user: other_user)
+      ChatListChannel.broadcast_to(other_user, {
+        type: "new_chat",
+        chat: serialized_chat_for_other_user
+      })
+
+      redirect_to chats_path,  status: :see_other, flash: { active_chat_id: chat.id }
     else
       redirect_to chats_path, alert: "Could not start a chat with this user."
     end
@@ -33,10 +40,10 @@ class ChatsController < ApplicationController
 
   private
 
-  def serialize_chat(chat)
+  def serialize_chat(chat, for_user: current_user)
     return nil unless chat
 
-    participant = chat.participants.find { |p| p.user_id == current_user.id }
+    participant = chat.participants.find { |p| p.user_id == for_user.id }
 
     chat.as_json(
       only: [ :id, :name, :chat_type, :created_at, :updated_at ],
@@ -49,7 +56,7 @@ class ChatsController < ApplicationController
       messages: chat.messages.as_json(
         include: { user: { only: [ :id, :email, :username ] } }
       ),
-      unread_count: participant&.unread_messages_count || 0,
+      unread_count: participant&.unread_messages_count || 1,
       last_message: chat.last_message&.as_json(
         include: { user: { only: [ :id, :email, :username ] } }
       )
