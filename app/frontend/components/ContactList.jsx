@@ -48,7 +48,6 @@ export default function ContactList({ contacts, setActiveList }) {
           preserveScroll
           onSuccess={() => setActiveList("chats")}
         >
-          {console.log("contact: ", contact)}
           <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/10 transition-colors group">
             <div className="flex items-center space-x-3">
               <Avatar className="w-12 h-12 border-2 border-orange-100 dark:border-orange-900/20">

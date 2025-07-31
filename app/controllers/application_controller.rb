@@ -4,10 +4,17 @@ class ApplicationController < ActionController::Base
 
   before_action :authenticate_user!
   before_action :update_last_seen_at, if: :user_signed_in?
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
+  protected
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sing_in, keys: [ :login, :password ])
+  end
 
   inertia_share flash: -> { flash.to_hash }
   inertia_share auth: -> {
-    { user: current_user.as_json(only: [ :id, :email, :username ]) } if user_signed_in?
+    { user: current_user.as_json(only: [ :id, :username ]) } if user_signed_in?
   }
 
   private

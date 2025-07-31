@@ -17,9 +17,10 @@ import {
   root_path,
 } from "@/routes";
 
-export default function Register({ errors: initialErrors }) {
+export default function Register() {
   const { data, setData, post, processing, errors, reset } = useForm({
     user: {
+      username: "",
       email: "",
       password: "",
       password_confirmation: "",
@@ -69,6 +70,28 @@ export default function Register({ errors: initialErrors }) {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="your_username"
+                    value={data.user.username}
+                    onChange={(e) => setData("user.username", e.target.value)}
+                    className={`focus:ring-orange-500 focus:border-orange-500 ${
+                      errors.username
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                        : ""
+                    }`}
+                    required
+                  />
+                  {errors.username && (
+                    <p className="text-red-500 text-sm flex items-center mt-1">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.username}
+                    </p>
+                  )}
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input

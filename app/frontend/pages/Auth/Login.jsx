@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MessageCircle, ArrowLeft, AlertCircle } from "lucide-react";
 import {
@@ -21,9 +20,8 @@ import {
 export default function Login({ alert, notice }) {
   const { data, setData, post, processing, errors } = useForm({
     user: {
-      email: "",
+      login: "",
       password: "",
-      remember_me: false,
     },
   });
 
@@ -33,9 +31,8 @@ export default function Login({ alert, notice }) {
       onSuccess: () => {
         setData({
           user: {
-            email: "",
+            login: "",
             password: "",
-            remember_me: false,
           },
         });
       },
@@ -86,24 +83,24 @@ export default function Login({ alert, notice }) {
               )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="login">Email or Username</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={data.user.email}
-                    onChange={(e) => setData("user.email", e.target.value)}
+                    id="login"
+                    type="text"
+                    placeholder="your@email.com or your_username"
+                    value={data.user.login}
+                    onChange={(e) => setData("user.login", e.target.value)}
                     className={`focus:ring-orange-500 focus:border-orange-500 ${
-                      errors.email
+                      errors.login
                         ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                         : ""
                     }`}
                     required
                   />
-                  {errors.email && (
+                  {errors.login && (
                     <p className="text-red-500 text-sm flex items-center mt-1">
                       <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.email}
+                      {errors.login}
                     </p>
                   )}
                 </div>
@@ -128,19 +125,6 @@ export default function Login({ alert, notice }) {
                       {errors.password}
                     </p>
                   )}
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember_me"
-                    checked={data.user.remember_me}
-                    onCheckedChange={(checked) =>
-                      setData("user.remember_me", checked)
-                    }
-                  />
-                  <Label htmlFor="remember_me" className="text-sm">
-                    Remember me
-                  </Label>
                 </div>
 
                 {/* General authentication errors */}

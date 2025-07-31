@@ -13,7 +13,6 @@ export function useChatChannel(chatId, onMessageReceived) {
     }
 
     if (!window.cable) {
-      console.error("Action Cable consumer (window.cable) is not initialized.");
       return;
     }
 
@@ -24,10 +23,6 @@ export function useChatChannel(chatId, onMessageReceived) {
         received: (data) => {
           onMessageReceived(data);
         },
-        // Optional: connected, disconnected callbacks for debugging or UI feedback
-        connected: () => console.log(`Connected to chat_channel_${chatId}`),
-        disconnected: () =>
-          console.log(`Disconnected from chat_channel_${chatId}`),
       },
     );
 

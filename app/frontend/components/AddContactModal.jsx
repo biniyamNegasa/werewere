@@ -50,7 +50,7 @@ export default function AddContactModal({ isOpen, onOpenChange }) {
         <DialogHeader>
           <DialogTitle>Add New Contact</DialogTitle>
           <DialogDescription>
-            Search for users by their username or email address.
+            Search for users by their username.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
@@ -80,11 +80,6 @@ export default function AddContactModal({ isOpen, onOpenChange }) {
                   </Avatar>
                   <div>
                     <p className="font-medium">{user.username || user.email}</p>
-                    {user.username && (
-                      <p className="text-sm text-muted-foreground">
-                        {user.email}
-                      </p>
-                    )}
                   </div>
                 </div>
                 {/* This Link component makes a POST request to your ContactsController#create action */}

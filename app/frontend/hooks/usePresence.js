@@ -5,9 +5,6 @@ export function usePresence() {
 
   useEffect(() => {
     if (!window.cable) {
-      console.error(
-        "Action Cable consumer (window.cable) is not initialized for presence hook.",
-      );
       return;
     }
 
@@ -24,8 +21,6 @@ export function usePresence() {
             },
           }));
         },
-        connected: () => console.log("Connected to AppearanceChannel"),
-        disconnected: () => console.log("Disconnected from AppearanceChannel"),
       },
     );
 

@@ -7,7 +7,7 @@ class ChatsController < ApplicationController
               .order(updated_at: :desc)
 
     contacts = current_user.contact_users.order(last_seen_at: :desc).as_json(
-      only: [ :id, :email, :username, :status, :last_seen_at ]
+      only: [ :id, :username, :status, :last_seen_at ]
     )
 
     enriched_chats = chats.map { |chat| serialize_chat(chat) }
@@ -51,16 +51,16 @@ class ChatsController < ApplicationController
       only: [ :id, :name, :chat_type, :created_at, :updated_at ],
       include: {
         users: {
-          only: [ :id, :email, :username, :status, :last_seen_at ]
+          only: [ :id, :username, :status, :last_seen_at ]
         }
       }
     ).merge(
       messages: chat.messages.as_json(
-        include: { user: { only: [ :id, :email, :username ] } }
+        include: { user: { only: [ :id, :username ] } }
       ),
       unread_count: participant&.unread_messages_count || 1,
       last_message: chat.last_message&.as_json(
-        include: { user: { only: [ :id, :email, :username ] } }
+        include: { user: { only: [ :id, :username ] } }
       )
     )
   end

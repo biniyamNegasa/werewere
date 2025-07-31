@@ -23,7 +23,7 @@ class ChatChannel < ApplicationCable::Channel
         message.as_json(
           include: {
             user: {
-              only: [ :id, :username, :email ]
+              only: [ :id, :username ]
             }
           },
           only: [ :id, :body, :user_id, :created_at ]
@@ -38,7 +38,7 @@ class ChatChannel < ApplicationCable::Channel
           last_message: message.as_json(
             include: {
               user: {
-                only: [ :id, :username, :email ]
+                only: [ :id, :username  ]
               }
             },
             only: [ :id, :body, :user_id, :created_at ]

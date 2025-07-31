@@ -12,9 +12,7 @@ export function useChatListChannel(currentUserId, onChatListUpdate) {
             onChatListUpdate(data);
           }
         },
-        connected: () => console.log("Connected to ChatListChannel"),
-        disconnected: () => console.log("Disconnected from ChatListChannel"),
-      }
+      },
     );
 
     return () => {

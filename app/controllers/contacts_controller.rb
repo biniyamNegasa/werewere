@@ -10,7 +10,7 @@ class ContactsController < ApplicationController
     current_user.contacts.create!(contact: contact_to_add, status: :accepted)
 
 
-    redirect_to chats_path, notice: "#{contact_to_add.username || contact_to_add.email} has been added to your contacts."
+    redirect_to chats_path, notice: "#{contact_to_add.username} has been added to your contacts."
   rescue ActiveRecord::RecordNotFound
     redirect_to chats_path, alert: "Could not find the user to add."
   rescue ActiveRecord::RecordInvalid => e

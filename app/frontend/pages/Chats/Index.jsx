@@ -9,16 +9,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
 
 export default function ChatsIndex(props) {
-  console.log("ChatsIndex props:", props);
-
   const syncProps = useChatStore((state) => state.syncProps);
   const chats = useChatStore((state) => state.chats);
   const activeChatId = useChatStore((state) => state.activeChatId);
   const setActiveChat = useChatStore((state) => state.setActiveChat);
   const currentUser = useChatStore((state) => state.currentUser);
-
-  console.log("activeChatId: ", activeChatId);
-  console.log("chats: ", chats);
 
   const activeChat = useMemo(
     () => chats.find((chat) => chat.id === activeChatId),
