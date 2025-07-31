@@ -12,14 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ArrowLeft,
-  Send,
-  MoreVertical,
-  UserPlus,
-  Phone,
-  Video,
-} from "lucide-react";
+import { ArrowLeft, Send, MoreVertical, UserPlus } from "lucide-react";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { contacts_path } from "@/routes";
 
@@ -126,30 +119,16 @@ export default function ChatWindow({ activeChat, onBack }) {
             {displayStatus()}
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20"
-          >
-            <Phone className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20"
-          >
-            <Video className="w-5 h-5" />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {/* This item only shows if it's a direct chat and the other user is NOT already a contact */}
-              {isDirectChat && !isContact && otherUser && (
+        {/* This item only shows if it's a direct chat and the other user is NOT already a contact */}
+        {isDirectChat && !isContact && otherUser && (
+          <div className="flex items-center space-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onSelect={(e) => e.preventDefault()}
                   className="cursor-pointer"
@@ -166,10 +145,10 @@ export default function ChatWindow({ activeChat, onBack }) {
                     <span>Add to Contacts</span>
                   </Link>
                 </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </header>
 
       {/* Messages */}
