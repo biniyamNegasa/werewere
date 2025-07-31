@@ -6,7 +6,9 @@ class ChatsController < ApplicationController
               .includes(:last_message, users: [], participants: :user)
               .order(updated_at: :desc)
 
-    contacts = current_user.contact_users.as_json(only: [ :id, :email, :username ])
+    contacts = current_user.contact_users.order(last_seen_at: :desc).as_json(
+      only: [ :id, :email, :username, :status, :last_seen_at ]
+    )
 
     enriched_chats = chats.map { |chat| serialize_chat(chat) }
 

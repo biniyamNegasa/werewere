@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { Link } from "@inertiajs/react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { chats_path } from "@/routes";
+import { formatDistanceToNowStrict } from "date-fns";
 
 export default function ContactList({ contacts, setActiveList }) {
   if (!contacts || contacts.length === 0) {
@@ -25,6 +26,15 @@ export default function ContactList({ contacts, setActiveList }) {
     return contact.email.substring(0, 2).toUpperCase();
   };
 
+  const getLastSeenTime = (contact) => {
+    if (contact.last_seen_at) {
+      const lastSeen = new Date(contact.last_seen_at);
+      const distance = formatDistanceToNowStrict(lastSeen, { addSuffix: true });
+      return distance;
+    }
+    return "";
+  };
+
   return (
     <div className="p-2">
       {contacts.map((contact) => (
@@ -38,6 +48,7 @@ export default function ContactList({ contacts, setActiveList }) {
           preserveScroll
           onSuccess={() => setActiveList("chats")}
         >
+          {console.log("contact: ", contact)}
           <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/10 transition-colors group">
             <div className="flex items-center space-x-3">
               <Avatar className="w-12 h-12 border-2 border-orange-100 dark:border-orange-900/20">
@@ -46,15 +57,15 @@ export default function ContactList({ contacts, setActiveList }) {
                 </AvatarFallback>
               </Avatar>
 
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 flex flex-col justify-around">
                 <h3 className="font-medium text-foreground truncate">
                   {contact.username || contact.email}
                 </h3>
-                {contact.username && (
-                  <p className="text-sm text-muted-foreground truncate">
-                    {contact.email}
-                  </p>
-                )}
+                {
+                  <span className="text-muted-foreground text-sm">
+                    Last seen {getLastSeenTime(contact)}
+                  </span>
+                }
               </div>
             </div>
           </div>
