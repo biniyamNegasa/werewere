@@ -64,3 +64,5 @@ gem "vite_rails", "~> 3.0"
 gem "devise", "~> 4.9"
 
 gem "js-routes", "~> 2.3"
+
+gem "inertia_rails-contrib", "~> 0.5.1"

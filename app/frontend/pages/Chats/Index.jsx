@@ -86,7 +86,7 @@ export default function ChatsIndex(props) {
 
           <div className="flex-1 flex h-full relative">
             <div
-              className={`${activeChat ? "hidden md:flex" : "flex"} w-full md:w-80 lg:w-96 h-full border-r border-border bg-card`}
+              className={`${activeChat ? "hidden md:flex" : "flex"} w-full md:w-2/5 h-full border-r border-border bg-card`}
             >
               <ListPanel
                 activeList={activeList}

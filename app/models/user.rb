@@ -22,7 +22,7 @@ class User < ApplicationRecord
   has_many :participants, dependent: :destroy
   has_many :chats, through: :participants
 
-  has_many :messages, dependent: :destroy
+  has_many :messages, dependent: :nullify
 
   has_many :contacts, dependent: :destroy
   has_many :contact_users, through: :contacts, source: :contact
