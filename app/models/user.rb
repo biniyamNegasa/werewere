@@ -25,5 +25,7 @@ class User < ApplicationRecord
   has_many :messages, dependent: :nullify
 
   has_many :contacts, dependent: :destroy
+  has_many :inverse_contacts, class_name: "Contact", foreign_key: "contact_id", dependent: :destroy
+
   has_many :contact_users, through: :contacts, source: :contact
 end
