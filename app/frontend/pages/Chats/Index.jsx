@@ -7,6 +7,7 @@ import ChatWindow from "@/components/ChatWindow";
 import { useChatStore } from "@/stores/chatStore";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
+import { usePresence } from "@/hooks/usePresence";
 
 export default function ChatsIndex(props) {
   const syncProps = useChatStore((state) => state.syncProps);
@@ -14,6 +15,13 @@ export default function ChatsIndex(props) {
   const activeChatId = useChatStore((state) => state.activeChatId);
   const setActiveChat = useChatStore((state) => state.setActiveChat);
   const currentUser = useChatStore((state) => state.currentUser);
+  const setPresence = useChatStore((state) => state.setPresence);
+
+  const allUserPresence = usePresence();
+
+  useEffect(() => {
+    setPresence(allUserPresence);
+  }, [allUserPresence, setPresence]);
 
   const activeChat = useMemo(
     () => chats.find((chat) => chat.id === activeChatId),

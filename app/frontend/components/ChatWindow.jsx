@@ -1,7 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import { usePresence } from "@/hooks/usePresence";
 import { useChatStore } from "@/stores/chatStore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,11 +19,9 @@ export default function ChatWindow({ activeChat, onBack }) {
   const currentUser = useChatStore((state) => state.currentUser);
   const speak = useChatStore((state) => state.speak);
   const contacts = useChatStore((state) => state.contacts);
+  const presence = useChatStore((state) => state.presence);
 
   const [newMessageBody, setNewMessageBody] = useState("");
-
-  // This hook is self-contained and can remain.
-  const allUsersPresence = usePresence();
 
   const messagesEndRef = useRef(null);
   const chatHeaderRef = useRef(null);
@@ -68,7 +65,7 @@ export default function ChatWindow({ activeChat, onBack }) {
 
   const isDirectChat = activeChat.chat_type === "direct_chat";
   const isContact = contacts.some((contact) => contact.id === otherUser?.id);
-  const currentOtherUserPresence = allUsersPresence[otherUser?.id] || otherUser;
+  const currentOtherUserPresence = presence[otherUser?.id] || otherUser;
 
   const getInitials = (user) => {
     if (user?.username) {

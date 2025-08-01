@@ -50,8 +50,7 @@ export default function ChatList({ chats, onSelectChat, activeChat }) {
     <div className="p-2">
       {chats.map((chat) => {
         const otherUser = chat.users[0];
-        const displayName =
-          otherUser?.username || otherUser?.email || "Unknown User";
+        const displayName = otherUser?.username || "deleted account";
 
         return (
           <div

@@ -18,6 +18,7 @@ export const useChatStore = create((set, get) => ({
   activeChatId: null,
   cable: getCable(),
   chatListSubscription: null,
+  presence: {},
 
   // --- ACTIONS ---
   syncProps: (props) => {
@@ -114,6 +115,10 @@ export const useChatStore = create((set, get) => ({
         { preserveState: true, preserveScroll: true, only: [] },
       );
     }
+  },
+
+  setPresence: (presence) => {
+    set({ presence });
   },
 
   // The 'speak' action now needs to get the subscription differently or be handled elsewhere.

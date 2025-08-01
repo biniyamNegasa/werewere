@@ -3,8 +3,10 @@ import { Link } from "@inertiajs/react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { chats_path } from "@/routes";
 import { formatDistanceToNowStrict } from "date-fns";
+import { useChatStore } from "@/stores/chatStore";
 
 export default function ContactList({ contacts, setActiveList }) {
+  const presence = useChatStore((state) => state.presence);
   if (!contacts || contacts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center p-6">
@@ -26,13 +28,23 @@ export default function ContactList({ contacts, setActiveList }) {
     return contact.email.substring(0, 2).toUpperCase();
   };
 
-  const getLastSeenTime = (contact) => {
-    if (contact.last_seen_at) {
-      const lastSeen = new Date(contact.last_seen_at);
+  const displayStatus = (contact) => {
+    // Get the latest presence info for this contact, or fall back to the static contact data
+    const currentContactPresence = presence[contact.id] || contact;
+
+    if (currentContactPresence?.status === "online") {
+      return <span className="text-green-500 font-medium text-sm">Online</span>;
+    } else if (currentContactPresence?.last_seen_at) {
+      const lastSeen = new Date(currentContactPresence.last_seen_at);
       const distance = formatDistanceToNowStrict(lastSeen, { addSuffix: true });
-      return distance;
+      return (
+        <span className="text-muted-foreground text-sm">
+          last seen {distance}
+        </span>
+      );
     }
-    return "";
+    // Return a non-breaking space for consistent alignment if no status is available
+    return <span className="text-muted-foreground text-sm">&nbsp;</span>;
   };
 
   return (
@@ -56,15 +68,11 @@ export default function ContactList({ contacts, setActiveList }) {
                 </AvatarFallback>
               </Avatar>
 
-              <div className="flex-1 min-w-0 flex flex-col justify-around">
+              <div className="flex-1 min-w-0 flex flex-col text-left">
                 <h3 className="font-medium text-foreground truncate">
-                  {contact.username || contact.email}
+                  {contact.username}
                 </h3>
-                {
-                  <span className="text-muted-foreground text-sm">
-                    Last seen {getLastSeenTime(contact)}
-                  </span>
-                }
+                {displayStatus(contact)}
               </div>
             </div>
           </div>
