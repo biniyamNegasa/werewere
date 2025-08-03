@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!
+  skip_before_action :authenticate_user!, only: [ :validate_username ]
 
   def search
     query = params[:query]
@@ -19,5 +20,10 @@ class UsersController < ApplicationController
                 .limit(10)
 
     render json: users.as_json(only: [ :id, :username, :email ])
+  end
+
+  def validate_username
+    is_taken = User.exists?([ "lower(username) = ?", params[:username].downcase ])
+    render json: { is_taken: is_taken }
   end
 end

@@ -20,6 +20,7 @@ Rails.application.routes.draw do
 
   resources :contacts, only: [ :create ]
   get "users/search", to: "users#search"
+  get "users/validate_username", to: "users#validate_username"
 
   get "/chats/:id", to: redirect("/chats", status: 302), as: :chat
 

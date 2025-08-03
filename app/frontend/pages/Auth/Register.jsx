@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { Head, useForm, Link } from "@inertiajs/react";
-import PropTypes from "prop-types";
+import axios from "axios";
+import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,15 +12,52 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageCircle, ArrowLeft, AlertCircle } from "lucide-react";
 import {
-  new_user_session_path,
+  MessageCircle,
+  ArrowLeft,
+  AlertCircle,
+  Eye,
+  EyeOff,
+  CheckCircle,
+} from "lucide-react";
+import {
+  users_validate_username_path as validate_username_users_path,
   user_registration_path,
   root_path,
+  new_user_session_path,
 } from "@/routes";
 
+const registrationSchema = z
+  .object({
+    username: z
+      .string({ required_error: "Username is required." })
+      .min(3, { error: "Username must be at least 3 characters long." })
+      .max(20, { error: "Username must be no more than 20 characters long." })
+      .regex(/^[a-zA-Z0-9_]+$/, {
+        error: "Username can only contain letters, numbers, and underscores.",
+      }),
+    email: z.email({ error: "Please enter a valid email address." }),
+    password: z
+      .string({ required_error: "Password is required." })
+      .min(8, { error: "Password must be at least 8 characters long." }),
+    password_confirmation: z.string({
+      required_error: "Please confirm your password.",
+    }),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match.",
+    path: ["password_confirmation"],
+  });
+
 export default function Register() {
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const {
+    data,
+    setData,
+    post,
+    processing,
+    errors: serverErrors,
+    clearErrors,
+  } = useForm({
     user: {
       username: "",
       email: "",
@@ -27,16 +66,77 @@ export default function Register() {
     },
   });
 
+  const [formErrors, setFormErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState({
+    loading: false,
+    message: "",
+    isAvailable: false,
+  });
+
+  useEffect(() => {
+    const username = data.user.username.trim();
+    if (username.length < 3) {
+      setUsernameStatus({ loading: false, message: "", isAvailable: false });
+      return;
+    }
+
+    setUsernameStatus({ ...usernameStatus, loading: true });
+    const timer = setTimeout(() => {
+      axios
+        .get(validate_username_users_path({ username }), {
+          headers: { "X-Inertia": false },
+        })
+        .then((response) => {
+          if (response.data.is_taken) {
+            setUsernameStatus({
+              loading: false,
+              message: "Username is already taken.",
+              isAvailable: false,
+            });
+          } else {
+            setUsernameStatus({
+              loading: false,
+              message: "Username is available!",
+              isAvailable: true,
+            });
+            clearErrors("user.username");
+          }
+        })
+        .catch(() => {
+          setUsernameStatus({
+            loading: false,
+            message: "Could not validate username.",
+            isAvailable: false,
+          });
+        });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [data.user.username]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setFormErrors({});
+    clearErrors();
+
+    const validationResult = registrationSchema.safeParse(data.user);
+
+    if (!validationResult.success) {
+      const flattenedErrors = z.flattenError(validationResult.error);
+      setFormErrors(flattenedErrors.fieldErrors);
+      return;
+    }
+
     post(user_registration_path(), {
-      onSuccess: () => {
-        reset();
-      },
       onError: (backendErrors) => {
-        console.error("Registration errors:", backendErrors);
+        console.error("Registration errors from server:", backendErrors);
       },
     });
+  };
+
+  const getError = (fieldName) => {
+    return formErrors[fieldName]?.[0] || serverErrors[`user.${fieldName}`];
   };
 
   return (
@@ -69,7 +169,9 @@ export default function Register() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Use `noValidate` to prevent default browser validation, relying solely on Zod. */}
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                {/* Username with real-time validation */}
                 <div className="space-y-2">
                   <Label htmlFor="username">Username</Label>
                   <Input
@@ -78,20 +180,45 @@ export default function Register() {
                     placeholder="your_username"
                     value={data.user.username}
                     onChange={(e) => setData("user.username", e.target.value)}
-                    className={`focus:ring-orange-500 focus:border-orange-500 ${
-                      errors.username
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                        : ""
+                    className={`focus:ring-orange-500 ${
+                      getError("username")
+                        ? "border-red-500 focus:border-red-500"
+                        : usernameStatus.isAvailable
+                          ? "border-green-500 focus:border-green-500"
+                          : "focus:border-orange-500"
                     }`}
                     required
                   />
-                  {errors.username && (
+                  {usernameStatus.loading && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Checking...
+                    </p>
+                  )}
+                  {usernameStatus.message && !usernameStatus.loading && (
+                    <p
+                      className={`text-sm flex items-center mt-1 ${
+                        usernameStatus.isAvailable
+                          ? "text-green-600"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {usernameStatus.isAvailable ? (
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                      )}
+                      {usernameStatus.message}
+                    </p>
+                  )}
+                  {getError("username") && (
                     <p className="text-red-500 text-sm flex items-center mt-1">
                       <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.username}
+                      {getError("username")}
                     </p>
                   )}
                 </div>
+
+                {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -101,64 +228,79 @@ export default function Register() {
                     value={data.user.email}
                     onChange={(e) => setData("user.email", e.target.value)}
                     className={`focus:ring-orange-500 focus:border-orange-500 ${
-                      errors.email
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                      getError("email")
+                        ? "border-red-500 focus:border-red-500"
                         : ""
                     }`}
                     required
                   />
-                  {errors.email && (
+                  {getError("email") && (
                     <p className="text-red-500 text-sm flex items-center mt-1">
                       <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.email}
+                      {getError("email")}
                     </p>
                   )}
                 </div>
 
+                {/* Password with Show/Hide Toggle */}
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={data.user.password}
-                    onChange={(e) => setData("user.password", e.target.value)}
-                    className={`focus:ring-orange-500 focus:border-orange-500 ${
-                      errors.password
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                        : ""
-                    }`}
-                    required
-                  />
-                  {errors.password && (
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={data.user.password}
+                      onChange={(e) => setData("user.password", e.target.value)}
+                      className={`focus:ring-orange-500 focus:border-orange-500 ${
+                        getError("password")
+                          ? "border-red-500 focus:border-red-500"
+                          : ""
+                      }`}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                  {getError("password") && (
                     <p className="text-red-500 text-sm flex items-center mt-1">
                       <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.password}
+                      {getError("password")}
                     </p>
                   )}
                 </div>
 
+                {/* Password Confirmation */}
                 <div className="space-y-2">
                   <Label htmlFor="password_confirmation">
                     Confirm Password
                   </Label>
                   <Input
                     id="password_confirmation"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={data.user.password_confirmation}
                     onChange={(e) =>
                       setData("user.password_confirmation", e.target.value)
                     }
                     className={`focus:ring-orange-500 focus:border-orange-500 ${
-                      errors.password_confirmation
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                      getError("password_confirmation")
+                        ? "border-red-500 focus:border-red-500"
                         : ""
                     }`}
                     required
                   />
-                  {errors.password_confirmation && (
+                  {getError("password_confirmation") && (
                     <p className="text-red-500 text-sm flex items-center mt-1">
                       <AlertCircle className="w-4 h-4 mr-1" />
-                      {errors.password_confirmation}
+                      {getError("password_confirmation")}
                     </p>
                   )}
                 </div>
@@ -190,7 +332,3 @@ export default function Register() {
     </>
   );
 }
-
-Register.propTypes = {
-  errors: PropTypes.object,
-};
