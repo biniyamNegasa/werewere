@@ -30,15 +30,26 @@ export default function ChatsIndex(props) {
 
   const [activeList, setActiveList] = useState("chats");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showFlashMessage, setShowFlashMessage] = useState(true);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     syncProps(props);
   }, [props]);
 
   useEffect(() => {
-    if (props.flash?.alert || props.flash?.notice) {
-      const timer = setTimeout(() => setShowFlashMessage(false), 3000);
+    const flashMessage = props.flash?.notice || props.flash?.alert;
+    const flashType = props.flash?.notice ? "success" : "error";
+
+    if (flashMessage) {
+      // Set the notification in our state
+      setNotification({ message: flashMessage, type: flashType });
+
+      // Set a timer to clear our local notification after 5 seconds
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 2000);
+
+      // Cleanup the timer if the component unmounts or if a new flash message arrives
       return () => clearTimeout(timer);
     }
   }, [props.flash]);
@@ -56,23 +67,44 @@ export default function ChatsIndex(props) {
       <Head title="WereWere - Chats" />
       <main className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
         {/* Flash Messages */}
-        {showFlashMessage && (props.flash?.alert || props.flash?.notice) && (
+        {/* {showFlashMessage && (props.flash?.alert || props.flash?.notice) && ( */}
+        {/*   <div className="p-4 border-b border-border"> */}
+        {/*     {props.flash.alert && ( */}
+        {/*       <Alert variant="destructive" className="mb-2"> */}
+        {/*         <AlertCircle className="h-4 w-4" /> */}
+        {/*         <AlertDescription>{props.flash.alert}</AlertDescription> */}
+        {/*       </Alert> */}
+        {/*     )} */}
+        {/*     {props.flash.notice && ( */}
+        {/*       <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200"> */}
+        {/*         <CheckCircle className="h-4 w-4" /> */}
+        {/*         <AlertDescription>{props.flash.notice}</AlertDescription> */}
+        {/*       </Alert> */}
+        {/*     )} */}
+        {/*   </div> */}
+        {/* )} */}
+
+        {notification && (
           <div className="p-4 border-b border-border">
-            {props.flash.alert && (
-              <Alert variant="destructive" className="mb-2">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{props.flash.alert}</AlertDescription>
-              </Alert>
-            )}
-            {props.flash.notice && (
-              <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200">
+            <Alert
+              variant={
+                notification.type === "error" ? "destructive" : "default"
+              }
+              className={
+                notification.type === "success"
+                  ? "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200"
+                  : ""
+              }
+            >
+              {notification.type === "success" ? (
                 <CheckCircle className="h-4 w-4" />
-                <AlertDescription>{props.flash.notice}</AlertDescription>
-              </Alert>
-            )}
+              ) : (
+                <AlertCircle className="h-4 w-4" />
+              )}
+              <AlertDescription>{notification.message}</AlertDescription>
+            </Alert>
           </div>
         )}
-
         <div className="flex flex-1 overflow-hidden">
           <div
             className={`${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} h-full md:translate-x-0 fixed md:relative z-50 transition-transform duration-300 ease-in-out`}

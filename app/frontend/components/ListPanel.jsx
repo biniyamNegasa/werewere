@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Menu, Plus } from "lucide-react";
-import AddContactModal from "@/components/AddContactModal";
+import NewChatModal from "@/components/NewChatModal";
 import ChatList from "@/components/ChatList";
 import ContactList from "@/components/ContactList";
 import SettingsPanel from "@/components/SettingsPanel";
@@ -124,9 +124,10 @@ export default function ListPanel({
       </div>
 
       {/* Render the Modal */}
-      <AddContactModal
+      <NewChatModal
         isOpen={isAddContactOpen}
         onOpenChange={setIsAddContactOpen}
+        setActiveList={setActiveList}
       />
     </div>
   );
