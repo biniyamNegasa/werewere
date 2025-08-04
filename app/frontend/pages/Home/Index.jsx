@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageCircle, Users, Shield, Zap } from "lucide-react";
+import { MessageCircle, Zap } from "lucide-react";
 import { new_user_registration_path, new_user_session_path } from "@/routes";
 
 export default function Home() {
@@ -49,9 +49,8 @@ export default function Home() {
               Connect <span className="text-orange-500">Instantly</span>
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Fast, secure, and simple messaging. Stay connected with friends,
-              family, and colleagues with WereWere's lightning-fast chat
-              platform.
+              Fast, and simple messaging. Stay connected with friends, family,
+              and colleagues with WereWere's lightning-fast chat platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <Link href={new_user_registration_path()}>
@@ -86,36 +85,6 @@ export default function Home() {
                   <CardDescription>
                     Messages delivered instantly with real-time synchronization
                     across all your devices.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-
-              <Card className="border-orange-100 dark:border-orange-900/20">
-                <CardHeader className="text-center">
-                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Shield className="w-6 h-6 text-orange-500" />
-                  </div>
-                  <CardTitle className="text-lg">Secure & Private</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    End-to-end encryption ensures your conversations stay
-                    private and secure.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-
-              <Card className="border-orange-100 dark:border-orange-900/20">
-                <CardHeader className="text-center">
-                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-6 h-6 text-orange-500" />
-                  </div>
-                  <CardTitle className="text-lg">Group Chats</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Create groups, share files, and collaborate with teams of
-                    any size.
                   </CardDescription>
                 </CardContent>
               </Card>
