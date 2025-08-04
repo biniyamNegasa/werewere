@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <>
       <Head title="WereWere - Connect Instantly" />
-      <div className="min-h-screen bg-gradient-to-br from-background to-orange-50 dark:to-orange-950/20">
+      <div className="flex flex-col min-h-screen bg-gradient-to-br from-background to-orange-50 dark:to-orange-950/20">
         {/* Header */}
         <header className="container mx-auto px-4 py-6">
           <nav className="flex items-center justify-between">
@@ -43,7 +43,7 @@ export default function Home() {
         </header>
 
         {/* Hero Section */}
-        <main className="container mx-auto px-4 py-16">
+        <main className="flex-grow container mx-auto px-4 py-16">
           <div className="text-center max-w-4xl mx-auto">
             <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
               Connect <span className="text-orange-500">Instantly</span>
