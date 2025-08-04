@@ -16,7 +16,7 @@ export default function ListPanel({
   activeChat,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAddContactOpen, setIsAddContactOpen] = useState(false);
+  const [isNewChatOpen, setIsNewChatOpen] = useState(false);
 
   const chats = useChatStore((state) => state.chats);
   const currentUser = useChatStore((state) => state.currentUser);
@@ -85,7 +85,7 @@ export default function ListPanel({
           <Button
             size="icon"
             variant="ghost"
-            onClick={() => setIsAddContactOpen(true)}
+            onClick={() => setIsNewChatOpen(true)}
             className="text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20"
           >
             <Plus className="w-5 h-5" />
@@ -125,8 +125,8 @@ export default function ListPanel({
 
       {/* Render the Modal */}
       <NewChatModal
-        isOpen={isAddContactOpen}
-        onOpenChange={setIsAddContactOpen}
+        isOpen={isNewChatOpen}
+        onOpenChange={setIsNewChatOpen}
         setActiveList={setActiveList}
       />
     </div>

@@ -43,7 +43,10 @@ export default function AppNavigationRail({
         <Button
           variant={activeList === "chats" ? "secondary" : "ghost"}
           size="icon"
-          onClick={() => onSelect("chats")}
+          onClick={() => {
+            onSelect("chats");
+            onMobileMenuToggle();
+          }}
           className={`w-12 h-12 rounded-xl transition-all ${
             activeList === "chats"
               ? "bg-white text-orange-500 shadow-lg"
@@ -57,7 +60,10 @@ export default function AppNavigationRail({
         <Button
           variant={activeList === "contacts" ? "secondary" : "ghost"}
           size="icon"
-          onClick={() => onSelect("contacts")}
+          onClick={() => {
+            onSelect("contacts");
+            onMobileMenuToggle();
+          }}
           className={`w-12 h-12 rounded-xl transition-all ${
             activeList === "contacts"
               ? "bg-white text-orange-500 shadow-lg"
@@ -71,7 +77,10 @@ export default function AppNavigationRail({
         <Button
           variant={activeList === "settings" ? "secondary" : "ghost"}
           size="icon"
-          onClick={() => onSelect("settings")}
+          onClick={() => {
+            onSelect("settings");
+            onMobileMenuToggle();
+          }}
           className={`w-12 h-12 rounded-xl transition-all ${
             activeList === "settings"
               ? "bg-white text-orange-500 shadow-lg"

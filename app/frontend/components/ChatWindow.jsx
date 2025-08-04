@@ -1,4 +1,3 @@
-import { Link } from "@inertiajs/react";
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { useChatStore } from "@/stores/chatStore";
@@ -14,6 +13,7 @@ import {
 import { ArrowLeft, Send, MoreVertical, UserPlus } from "lucide-react";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { contacts_path } from "@/routes";
+import { useForm } from "@inertiajs/react";
 
 export default function ChatWindow({ activeChat, onBack }) {
   const currentUser = useChatStore((state) => state.currentUser);
@@ -27,10 +27,15 @@ export default function ChatWindow({ activeChat, onBack }) {
   const chatHeaderRef = useRef(null);
   const chatComposerRef = useRef(null);
 
+  const { post, processing: isAddingContact } = useForm();
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeChat?.messages]);
 
+  const handleAddContact = () => {
+    if (!otherUser || isAddingContact) return;
+    post(contacts_path({ contact_id: otherUser.id }));
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     if (newMessageBody.trim()) {
@@ -127,20 +132,14 @@ export default function ChatWindow({ activeChat, onBack }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
+                  onSelect={handleAddContact}
+                  disabled={isAddingContact}
                   className="cursor-pointer"
                 >
-                  <Link
-                    href={contacts_path()}
-                    method="post"
-                    data={{ contact_id: otherUser.id }}
-                    as="button"
-                    className="w-full flex items-center"
-                    preserveScroll
-                  >
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    <span>Add to Contacts</span>
-                  </Link>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  <span>
+                    {isAddingContact ? "Adding..." : "Add to Contacts"}
+                  </span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
