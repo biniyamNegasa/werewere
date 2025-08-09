@@ -1,12 +1,7 @@
 import { createInertiaApp } from "@inertiajs/react";
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { createConsumer } from "@rails/actioncable";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-
-if (!window.cable) {
-  window.cable = createConsumer();
-}
 
 createInertiaApp({
   // Set default page title

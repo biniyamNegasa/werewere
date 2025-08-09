@@ -1,8 +1,5 @@
 class ChatChannel < ApplicationCable::Channel
   def subscribed
-    # reload to ensure the user is up to date
-    current_user.reload
-
     # stream_from "some_channel"
     @chat = Chat.find(params[:id])
 

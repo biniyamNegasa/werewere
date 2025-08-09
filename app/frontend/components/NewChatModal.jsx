@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, router } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -81,7 +81,6 @@ export default function NewChatModal({ isOpen, onOpenChange }) {
                 onSuccess={() => {
                   // On success, close the modal and switch to the chats list
                   onOpenChange(false);
-                  router.reload();
                 }}
                 className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-muted cursor-pointer"
               >

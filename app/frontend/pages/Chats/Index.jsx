@@ -41,18 +41,17 @@ export default function ChatsIndex(props) {
     const flashType = props.flash?.notice ? "success" : "error";
 
     if (flashMessage) {
-      // Set the notification in our state
       setNotification({ message: flashMessage, type: flashType });
 
-      // Set a timer to clear our local notification after 5 seconds
+      // Set a timer to clear our local notification after 1.5 seconds
       const timer = setTimeout(() => {
         setNotification(null);
-      }, 2000);
+      }, 1500);
 
       // Cleanup the timer if the component unmounts or if a new flash message arrives
       return () => clearTimeout(timer);
     }
-  }, [props.flash]);
+  }, []);
 
   const handleBackToList = () => {
     setActiveChat(null);
@@ -66,24 +65,6 @@ export default function ChatsIndex(props) {
     <>
       <Head title="WereWere - Chats" />
       <main className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
-        {/* Flash Messages */}
-        {/* {showFlashMessage && (props.flash?.alert || props.flash?.notice) && ( */}
-        {/*   <div className="p-4 border-b border-border"> */}
-        {/*     {props.flash.alert && ( */}
-        {/*       <Alert variant="destructive" className="mb-2"> */}
-        {/*         <AlertCircle className="h-4 w-4" /> */}
-        {/*         <AlertDescription>{props.flash.alert}</AlertDescription> */}
-        {/*       </Alert> */}
-        {/*     )} */}
-        {/*     {props.flash.notice && ( */}
-        {/*       <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200"> */}
-        {/*         <CheckCircle className="h-4 w-4" /> */}
-        {/*         <AlertDescription>{props.flash.notice}</AlertDescription> */}
-        {/*       </Alert> */}
-        {/*     )} */}
-        {/*   </div> */}
-        {/* )} */}
-
         {notification && (
           <div className="p-4 border-b border-border">
             <Alert
