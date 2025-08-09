@@ -5,6 +5,7 @@ import { MessageCircle, Users, Settings, LogOut, Menu } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Link } from "@inertiajs/react";
 import { destroy_user_session_path } from "@/routes";
+import { useChatStore } from "@/stores/chatStore";
 
 export default function AppNavigationRail({
   activeList,
@@ -12,6 +13,8 @@ export default function AppNavigationRail({
   currentUser,
   onMobileMenuToggle,
 }) {
+  const cable = useChatStore((state) => state.cable);
+
   const getInitials = (user) => {
     if (user.username) {
       return user.username.substring(0, 2).toUpperCase();
@@ -111,6 +114,9 @@ export default function AppNavigationRail({
           as="button"
           className="w-10 h-10 rounded-xl flex items-center justify-center text-white hover:bg-red-500/20 transition-colors"
           title="Sign Out"
+          onSuccess={() => {
+            cable.disconnect();
+          }}
         >
           <LogOut className="w-5 h-5" />
         </Link>
