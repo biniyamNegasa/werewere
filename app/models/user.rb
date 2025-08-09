@@ -4,11 +4,26 @@ class User < ApplicationRecord
   attr_accessor :login
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable,
+         :omniauthable, omniauth_providers: [ :github ]
 
   RESERVED_USERNAMES = %w[admin user root support help werewere]
 
   validates :username, presence: true, length: { minimum: 3, maximum: 20 }, uniqueness: { case_sensitive: false }, format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" }, exclusion: { in: RESERVED_USERNAMES, message: "is reserved" }
+
+  def self.from_omniauth(auth)
+    where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
+      user.email = auth.info.email
+      username = auth.info.nickname || auth.info.name.gsub(/\s+/, "").downcase
+
+      while User.exists?(username: username)
+        username = "#{auth.info.nickname}_#{rand(1e9)}"
+      end
+
+      user.username = username
+      user.password = Devise.friendly_token[0, 20]
+    end
+  end
 
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup

@@ -25,7 +25,11 @@ import {
   user_registration_path,
   root_path,
   new_user_session_path,
+  user_github_omniauth_authorize_path,
 } from "@/routes";
+
+import { GitHub } from "@/components/icons/GitHub";
+import FormAuthenticityField from "@/components/FormAuthenticityField";
 
 const registrationSchema = z
   .object({
@@ -312,6 +316,31 @@ export default function Register() {
                 >
                   {processing ? "Creating Account..." : "Create Account"}
                 </Button>
+              </form>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              <form
+                action={user_github_omniauth_authorize_path()}
+                method="post"
+              >
+                <FormAuthenticityField />
+                <button
+                  className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-orange-500 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  type="submit"
+                >
+                  <GitHub className="mr-2 h-4 w-4" />
+                  GitHub
+                </button>
               </form>
 
               <div className="mt-6 text-center text-sm">

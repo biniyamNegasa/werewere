@@ -16,6 +16,7 @@ class ApplicationController < ActionController::Base
   inertia_share auth: -> {
     { user: current_user.as_json(only: [ :id, :username ]) } if user_signed_in?
   }
+  inertia_share csrf: -> { { param: request_forgery_protection_token, token: form_authenticity_token } }
 
   private
 
