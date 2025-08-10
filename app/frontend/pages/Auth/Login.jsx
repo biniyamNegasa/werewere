@@ -16,9 +16,11 @@ import {
   user_session_path,
   root_path,
   user_github_omniauth_authorize_path,
+  user_google_oauth2_omniauth_authorize_path,
 } from "@/routes";
 
 import { GitHub } from "@/components/icons/GitHub";
+import { Google } from "@/components/icons/Google";
 import FormAuthenticityField from "@/components/FormAuthenticityField";
 
 export default function Login({ alert, notice }) {
@@ -159,19 +161,35 @@ export default function Login({ alert, notice }) {
                 </div>
               </div>
 
-              <form
-                action={user_github_omniauth_authorize_path()}
-                method="post"
-              >
-                <FormAuthenticityField />
-                <button
-                  className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-orange-500 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  type="submit"
+              <div className="grid grid-cols-2 gap-4">
+                <form
+                  action={user_google_oauth2_omniauth_authorize_path()}
+                  method="post"
                 >
-                  <GitHub className="mr-2 h-4 w-4" />
-                  GitHub
-                </button>
-              </form>
+                  <FormAuthenticityField />
+                  <button
+                    className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-orange-500 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    type="submit"
+                  >
+                    <Google className="mr-2 h-4 w-4" />
+                    Google
+                  </button>
+                </form>
+
+                <form
+                  action={user_github_omniauth_authorize_path()}
+                  method="post"
+                >
+                  <FormAuthenticityField />
+                  <button
+                    className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-orange-500 text-sm font-medium text-white ring-offset-background transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    type="submit"
+                  >
+                    <GitHub className="mr-2 h-4 w-4" />
+                    GitHub
+                  </button>
+                </form>
+              </div>
 
               <div className="mt-6 text-center text-sm">
                 <span className="text-muted-foreground">

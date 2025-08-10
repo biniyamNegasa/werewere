@@ -69,3 +69,5 @@ gem "inertia_rails-contrib", "~> 0.5.1"
 
 gem "omniauth-github", "~> 2.0"
 gem "omniauth-rails_csrf_protection"
+
+gem "omniauth-google-oauth2", "~> 1.2"

@@ -542,6 +542,26 @@ export const user_github_omniauth_callback_path: ((
 
 /**
  * Generates rails route to
+ * /users/auth/google_oauth2(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const user_google_oauth2_omniauth_authorize_path: ((
+  options?: {format?: OptionalRouteParameter} & RouteOptions
+) => string) & RouteHelperExtras;
+
+/**
+ * Generates rails route to
+ * /users/auth/google_oauth2/callback(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const user_google_oauth2_omniauth_callback_path: ((
+  options?: {format?: OptionalRouteParameter} & RouteOptions
+) => string) & RouteHelperExtras;
+
+/**
+ * Generates rails route to
  * /users/password(.:format)
  * @param {object | undefined} options
  * @returns {string} route path

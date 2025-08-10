@@ -900,6 +900,22 @@ export const user_github_omniauth_callback_path = /*#__PURE__*/ __jsr.r({"format
 
 /**
  * Generates rails route to
+ * /users/auth/google_oauth2(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const user_google_oauth2_omniauth_authorize_path = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"google_oauth2"],[1,[2,[8,"."],[3,"format"]]]]]]]]]);
+
+/**
+ * Generates rails route to
+ * /users/auth/google_oauth2/callback(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const user_google_oauth2_omniauth_callback_path = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"users"],[2,[7,"/"],[2,[6,"auth"],[2,[7,"/"],[2,[6,"google_oauth2"],[2,[7,"/"],[2,[6,"callback"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]);
+
+/**
+ * Generates rails route to
  * /users/password(.:format)
  * @param {object | undefined} options
  * @returns {string} route path
