@@ -33,6 +33,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # GET /resource/edit
   def edit
+    if session[:user_update_params]
+      resource.assign_attributes(session.delete(:user_update_params))
+      resource.valid?
+    end
+
     render inertia: "User/Edit", props: {
       user: resource.as_json(only: [ :username, :email ]),
       errors: (flash[:error] || {}),
@@ -42,10 +47,26 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # PUT /resource
   def update
+    if session[:reauthenticated_at].blank? || session[:reauthenticated_at] < 3.minutes.ago
+      session[:user_update_params] = account_update_params.to_h
+
+      sign_out(current_user)
+
+      redirect_to new_user_session_path, alert: "For your security, please sign in again to make changes"
+      return
+    end
+
+    update_params = session.delete(:user_update_params) || account_update_params
+
     self.resource = resource_class.to_adapter.get!(send(:"current_#{resource_name}").to_key)
     prev_uncofirmed_email = resource.uncofirmed_email if resource.respond_to?(:uncofirmed_email)
 
-    resource_updated = update_resource(resource, account_update_params)
+    if update_params[:password].blank?
+      update_params.delete(:password)
+      update_params.delete(:password_confirmation)
+    end
+
+    resource_updated = resource.update(update_params)
 
     yield resource if block_given?
 

@@ -29,6 +29,9 @@ class Users::SessionsController < Devise::SessionsController
 
   # DELETE /resource/sign_out
   def destroy
+    session.delete(:user_update_params)
+    session.delete(:reauthenticated_at)
+
     signed_out = sign_out_and_redirect(resource_name)
     set_flash_message!(:notice, :signed_out) if signed_out
   end
@@ -41,7 +44,13 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   def after_sign_in_path_for(resource)
-    authenticated_root_path
+    if session[:user_update_params].present?
+      session[:reauthenticated_at] = Time.current
+
+      edit_user_registration_path
+    else
+      authenticated_root_path
+    end
   end
 
   def after_sign_out_path_for(resource_or_scope)

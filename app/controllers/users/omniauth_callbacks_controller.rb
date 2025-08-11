@@ -41,7 +41,17 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     redirect_to root_path
   end
 
-  # protected
+  protected
+
+  def after_sign_in_path_for(resource)
+    if session[:user_update_params].present?
+      session[:reauthenticated_at] = Time.current
+
+      edit_user_registration_path
+    else
+      authenticated_root_path
+    end
+  end
 
   # The path used when OmniAuth fails
   # def after_omniauth_failure_path_for(scope)

@@ -23,7 +23,6 @@ export default function EditProfile({ user, notice }) {
         email: user.email || "",
         password: "",
         password_confirmation: "",
-        current_password: "",
       },
     });
 
@@ -36,7 +35,6 @@ export default function EditProfile({ user, notice }) {
           ...prevData,
           password: "",
           password_confirmation: "",
-          current_password: "",
         }));
       },
     });
@@ -60,7 +58,7 @@ export default function EditProfile({ user, notice }) {
             <CardTitle className="text-2xl">Edit Profile</CardTitle>
             <CardDescription>
               Update your account details. To change your password, fill out the
-              password fields and provide your current password.
+              password fields.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -157,32 +155,6 @@ export default function EditProfile({ user, notice }) {
                   <p className="text-red-500 text-sm flex items-center mt-1">
                     <AlertCircle className="w-4 h-4 mr-1" />
                     {errors.password_confirmation}
-                  </p>
-                )}
-              </div>
-
-              {/* Current Password */}
-              <div className="space-y-2">
-                <Label htmlFor="current_password">Current Password</Label>
-                <Input
-                  id="current_password"
-                  type="password"
-                  value={data.user.current_password}
-                  onChange={(e) =>
-                    setData("user.current_password", e.target.value)
-                  }
-                  className={
-                    errors.current_password
-                      ? "border-red-500 focus-visible:ring-red-500"
-                      : ""
-                  }
-                  required
-                  placeholder="Required to save changes"
-                />
-                {errors.current_password && (
-                  <p className="text-red-500 text-sm flex items-center mt-1">
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.current_password}
                   </p>
                 )}
               </div>
