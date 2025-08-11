@@ -54,6 +54,9 @@ export default function ChatsIndex(props) {
   }, []);
 
   const handleBackToList = () => {
+    if (activeChat) {
+      setActiveChat(activeChat.id);
+    }
     setActiveChat(null);
   };
 
