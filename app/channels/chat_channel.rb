@@ -26,7 +26,7 @@ class ChatChannel < ApplicationCable::Channel
               only: [ :id, :username ]
             }
           },
-          only: [ :id, :body, :user_id, :created_at ]
+          only: [ :id, :body, :user_id, :created_at, :read_at ]
         )
       )
 
@@ -41,7 +41,7 @@ class ChatChannel < ApplicationCable::Channel
                 only: [ :id, :username  ]
               }
             },
-            only: [ :id, :body, :user_id, :created_at ]
+            only: [ :id, :body, :user_id, :created_at, :read_at ]
           )
         })
       end

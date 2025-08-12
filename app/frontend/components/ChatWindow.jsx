@@ -10,10 +10,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Send, MoreVertical, UserPlus } from "lucide-react";
+import {
+  ArrowLeft,
+  Send,
+  MoreVertical,
+  UserPlus,
+  Check,
+  CheckCheck,
+} from "lucide-react";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { contacts_path } from "@/routes";
 import { useForm } from "@inertiajs/react";
+
+const MessageStatus = ({ message, currentUser }) => {
+  if (message.user_id !== currentUser.id) {
+    return null;
+  }
+
+  if (message.read_at) {
+    return <CheckCheck className="w-4 h-4 text-orange-100" />;
+  } else {
+    return <Check className="w-4 h-4 text-orange-100" />;
+  }
+};
 
 export default function ChatWindow({ activeChat, onBack }) {
   const currentUser = useChatStore((state) => state.currentUser);
@@ -190,10 +209,10 @@ export default function ChatWindow({ activeChat, onBack }) {
                       {format(new Date(message.created_at), "HH:mm")}
                     </span>
                     {isOwn && (
-                      <div className="flex space-x-1">
-                        <div className="w-1 h-1 bg-current rounded-full opacity-60" />
-                        <div className="w-1 h-1 bg-current rounded-full" />
-                      </div>
+                      <MessageStatus
+                        message={message}
+                        currentUser={currentUser}
+                      />
                     )}
                   </div>
                 </div>
