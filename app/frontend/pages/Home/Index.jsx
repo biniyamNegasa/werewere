@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { MessageCircle, Zap } from "lucide-react";
 import { new_user_registration_path, new_user_session_path } from "@/routes";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Home() {
   return (
@@ -25,6 +26,7 @@ export default function Home() {
               <h1 className="text-2xl font-bold text-foreground">WereWere</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <Link href={new_user_session_path()}>
                 <Button
                   variant="ghost"
