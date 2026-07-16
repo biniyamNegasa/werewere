@@ -12,7 +12,10 @@ class User < ApplicationRecord
   validates :username, presence: true, length: { minimum: 3, maximum: 20 }, uniqueness: { case_sensitive: false }, format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" }, exclusion: { in: RESERVED_USERNAMES, message: "is reserved" }
 
   def self.from_omniauth(auth)
-    user = User.find_by(provider: auth.provider, uid: auth.uid) || User.find_by(email: auth.info.email)
+    user = User.find_by(provider: auth.provider, uid: auth.uid)
+    # Fall back to linking by email only when the provider supplied one.
+    # Both GitHub (with the user:email scope) and Google return verified emails.
+    user ||= User.find_by(email: auth.info.email) if auth.info.email.present?
 
     if user
       user.update(provider: auth.provider, uid: auth.uid)
@@ -21,19 +24,28 @@ class User < ApplicationRecord
         provider: auth.provider,
         uid: auth.uid,
         email: auth.info.email,
-        password: Devise.friendly_token[0, 20]
+        password: Devise.friendly_token[0, 20],
+        username: generate_username(auth)
       )
-
-      username = auth.info.nickname || auth.info.name.gsub(/\s+/, "_").downcase
-      while User.exists?(username: username)
-        username = "#{auth.info.nickname}_#{rand(1000)}"
-      end
-      user.username = username
       user.save
     end
 
     user
   end
+
+  def self.generate_username(auth)
+    base = (auth.info.nickname.presence || auth.info.name.presence || "new_user").to_s
+    base = base.gsub(/\s+/, "_").gsub(/[^a-zA-Z0-9_]/, "").downcase
+    base = "new_user" if base.length < 3 || RESERVED_USERNAMES.include?(base)
+    base = base.first(20)
+
+    username = base
+    while User.exists?([ "lower(username) = ?", username.downcase ])
+      username = "#{base.first(15)}_#{rand(10_000)}"
+    end
+    username
+  end
+  private_class_method :generate_username
 
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup

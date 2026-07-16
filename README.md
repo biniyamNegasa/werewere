@@ -13,20 +13,26 @@ featuring real-time user presence, direct messaging, and robust contact manageme
 
 ## Core Features
 
-- **Real-time Messaging:** Instant message delivery and updates powered by
-  Rails Action Cable.
+- **Real-time Messaging:** Instant message delivery, read receipts, and
+  presence updates powered by Rails Action Cable.
+- **Direct Chats:** Start a conversation with any user by username.
+- **Contacts & Blocking:** Manage contacts; blocking silences a conversation
+  in both directions.
+- **OAuth Sign-in:** Log in with GitHub or Google (in addition to
+  username/email + password).
 
 ---
 
 ## Technology Stack
 
-- **Backend:** Ruby on Rails 7+
-- **Frontend:** React 18+, Vite
+- **Backend:** Ruby on Rails 8
+- **Frontend:** React 19, Vite
 - **Connecting Layer:** Inertia.js
 - **Real-time:** Action Cable (WebSockets)
 - **Database:** PostgreSQL
-- **Authentication:** Devise
-- **Styling:** Tailwind CSS, shadcn/ui
+- **Authentication:** Devise + OmniAuth (GitHub, Google)
+- **Styling:** Tailwind CSS 4, shadcn/ui
+- **State:** Zustand
 - **Client-side Validation:** Zod
 
 ---
@@ -38,13 +44,11 @@ local machine for development and testing purposes.
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed on your system:
-
-- **Ruby:** Version `3.3.0` or higher
-- **Rails:** Version `7.1` or higher
-- **Node.js:** Version `20.0` or higher
-- **Yarn** or **npm**
-- **PostgreSQL:** A running instance
+- **Ruby:** the version pinned in [`.ruby-version`](.ruby-version)
+  (rbenv/rvm will pick it up automatically)
+- **Node.js:** Version `20.0` or higher, with **npm**
+- **PostgreSQL:** either a local instance or Docker (a
+  [`docker-compose.yml`](docker-compose.yml) is provided)
 
 ### Installation
 
@@ -55,62 +59,89 @@ Before you begin, ensure you have the following installed on your system:
    cd werewere
    ```
 
-2. **Install backend dependencies:**
+2. **Install dependencies:**
 
    ```bash
    bundle install
-   ```
-
-3. **Install frontend dependencies:**
-
-   ```bash
    npm install
    ```
 
+### Environment Variables
+
+Configuration that can't live in git (OAuth secrets, database password)
+is loaded from a `.env` file via dotenv. Start from the template:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Purpose | Required? |
+| --- | --- | --- |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub OAuth sign-in | Only for "Log in with GitHub" |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth sign-in | Only for "Log in with Google" |
+| `POSTGRES_PASSWORD` | Database password | No (defaults to `postgres`) |
+| `DEVISE_MAILER_SENDER` | From-address for Devise emails | No |
+
+Without the OAuth variables the app runs fine, but the GitHub/Google
+buttons will fail at the provider with a "client_id is required" error.
+
+#### Setting up the OAuth apps
+
+- **GitHub:** [github.com/settings/developers](https://github.com/settings/developers)
+  → *New OAuth App*. Set the authorization callback URL to
+  `http://localhost:3000/users/auth/github/callback`, then copy the client
+  ID and a generated client secret into `.env`.
+- **Google:** [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+  → *Create credentials* → *OAuth client ID* → *Web application*. Add
+  `http://localhost:3000/users/auth/google_oauth2/callback` as an
+  authorized redirect URI, then copy the client ID and secret into `.env`.
+
+For production, register a second OAuth app per provider with your real
+domain in the callback URL.
+
 ### Database Setup
 
-1. **Configure your database connection:**
-   Make sure your `config/database.yml` file is configured to connect to
-   your local PostgreSQL instance.
+**Option A — Docker (recommended):**
 
-2. **Create and migrate the database:**
-   This command will create the database, load the schema
-   from all migration files, and prepare it for use.
+```bash
+docker compose up -d
+```
 
-   ```bash
-   rails db:create db:migrate
-   ```
+**Option B — local PostgreSQL:** make sure it accepts the `postgres`
+user with the password from `POSTGRES_PASSWORD` (default `postgres`),
+or adjust [`config/database.yml`](config/database.yml).
 
-3. **(Optional) Seed the database:**
-   If you have a `db/seeds.rb` file to create initial data (like test users), run:
+Then create and migrate the databases:
 
-   ```bash
-   rails db:seed
-   ```
+```bash
+bin/rails db:prepare
+```
 
 ### Running the Application
 
-To run the application in a development environment,
-you need to start both the Rails server and the Vite development server.
+`bin/dev` starts the Rails server and the Vite dev server together:
 
-- **Launch the servers:**
-  Use the `bin/dev` command, which is configured to start both processes concurrently.
+```bash
+bin/dev
+```
 
-  ```bash
-  bin/dev
-  ```
-
-Your application should now be running and accessible at `http://localhost:3000`.
+The app is served at `http://localhost:3000`. To try the chat features,
+create two accounts and open them in two separate browser sessions
+(e.g. a normal and a private window).
 
 ---
 
-## How to Run the Test Suite
-
-To run the automated tests for the application, execute the following command:
+## Tests and Checks
 
 ```bash
-bundle exec rspec
+bundle exec rspec        # test suite (needs PostgreSQL running)
+bundle exec rubocop      # lint
+bundle exec brakeman -q  # static security analysis
 ```
+
+Note: rate limiting uses the Rails cache, which is disabled in
+development by default. Run `bin/rails dev:cache` to toggle it on if you
+want to exercise rate limits locally.
 
 ---
 
@@ -120,34 +151,27 @@ To deploy this application to a production environment,
 you will need to perform the following steps:
 
 1. **Set Production Secrets:**
-   Generate and set the `RAILS_MASTER_KEY` environment
-   variable on your production server.
+   Set `RAILS_MASTER_KEY`, `POSTGRES_PASSWORD`, the OAuth client
+   IDs/secrets, and `DEVISE_MAILER_SENDER` on your production server.
+   Configure SMTP (Action Mailer) if you need password-reset emails.
 
 2. **Build Frontend Assets:**
-   Compile and minify your JavaScript and CSS for production.
 
    ```bash
-   vite build
+   RAILS_ENV=production bin/rails assets:precompile
    ```
 
-3. **Precompile Rails Assets:**
-   Ensure Rails can serve the optimized frontend files.
+3. **Run Database Migrations:**
 
    ```bash
-   RAILS_ENV=production rails assets:precompile
+   RAILS_ENV=production bin/rails db:migrate
    ```
 
-4. **Run Database Migrations:**
-   Apply any pending migrations to your production database.
+4. **Start the Server:**
+   Run the Rails server in production mode behind a reverse proxy
+   (a [Kamal](https://kamal-deploy.org/) config is included in
+   [`config/deploy.yml`](config/deploy.yml) as a starting point).
 
    ```bash
-   RAILS_ENV=production rails db:migrate
-   ```
-
-5. **Start the Server:**
-   Run the Rails server in production mode. It's recommended to
-   use a process manager like `systemd` and a reverse proxy like Nginx.
-
-   ```bash
-   RAILS_ENV=production rails server
+   RAILS_ENV=production bin/rails server
    ```

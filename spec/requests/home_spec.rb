@@ -18,7 +18,7 @@ RSpec.describe "Homes", type: :request do
       it "redirects to the authenticated root path (chats)" do
         sign_in user
         get root_path
-        expect(response).to redirect_to(authenticated_root_path)
+        expect(response).to redirect_to(chats_path)
       end
     end
   end

@@ -45,7 +45,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def after_sign_in_path_for(resource)
     if session[:user_update_params].present?
-      session[:reauthenticated_at] = Time.current
+      session[:reauthenticated_at] = Time.current.iso8601
 
       edit_user_registration_path
     else

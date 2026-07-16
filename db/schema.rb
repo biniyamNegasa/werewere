@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_11_183042) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_16_155146) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,15 +24,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_183042) do
   create_table "contacts", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "contact_id", null: false
-    t.integer "status"
+    t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["contact_id"], name: "index_contacts_on_contact_id"
+    t.index ["user_id", "contact_id"], name: "index_contacts_on_user_id_and_contact_id", unique: true
     t.index ["user_id"], name: "index_contacts_on_user_id"
   end
 
   create_table "messages", force: :cascade do |t|
-    t.text "body"
+    t.text "body", null: false
     t.bigint "user_id"
     t.bigint "chat_id", null: false
     t.datetime "created_at", null: false
@@ -48,6 +49,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_183042) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "last_read_at"
+    t.index ["chat_id", "user_id"], name: "index_participants_on_chat_id_and_user_id", unique: true
     t.index ["chat_id"], name: "index_participants_on_chat_id"
     t.index ["user_id"], name: "index_participants_on_user_id"
   end

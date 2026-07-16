@@ -73,4 +73,10 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::IntegrationHelpers, type: :request
+
+  # Rails loads routes lazily in the test environment, but Devise's `sign_in`
+  # helper needs the mappings that `devise_for` registers at route load time.
+  config.before(:suite) do
+    Rails.application.reload_routes_unless_loaded
+  end
 end

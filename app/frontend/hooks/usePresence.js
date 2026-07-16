@@ -12,14 +12,28 @@ export function usePresence() {
       { channel: "AppearanceChannel" },
       {
         received: (data) => {
-          // Update the presence map for the specific user
-          setUsersPresence((prevPresence) => ({
-            ...prevPresence,
-            [data.user_id]: {
-              status: data.status,
-              last_seen_at: data.last_seen_at,
-            },
-          }));
+          if (data.type === "presence_snapshot") {
+            // Initial state of everyone this user can see.
+            setUsersPresence((prevPresence) => {
+              const next = { ...prevPresence };
+              data.users.forEach((user) => {
+                next[user.id] = {
+                  status: user.status,
+                  last_seen_at: user.last_seen_at,
+                };
+              });
+              return next;
+            });
+          } else {
+            // Update the presence map for the specific user
+            setUsersPresence((prevPresence) => ({
+              ...prevPresence,
+              [data.user_id]: {
+                status: data.status,
+                last_seen_at: data.last_seen_at,
+              },
+            }));
+          }
         },
       },
     );

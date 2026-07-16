@@ -4,6 +4,8 @@ class Users::SessionsController < Devise::SessionsController
   # before_action :configure_sign_in_params, only: [:create]
   skip_before_action :authenticate_user!, only: [ :new, :create ]
 
+  rate_limit to: 10, within: 1.minute, only: :create
+
   # GET /resource/sign_in
   def new
     #   super
@@ -45,7 +47,7 @@ class Users::SessionsController < Devise::SessionsController
 
   def after_sign_in_path_for(resource)
     if session[:user_update_params].present?
-      session[:reauthenticated_at] = Time.current
+      session[:reauthenticated_at] = Time.current.iso8601
 
       edit_user_registration_path
     else

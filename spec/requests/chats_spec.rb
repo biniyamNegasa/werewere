@@ -38,17 +38,18 @@ RSpec.describe "ChatsControllers", type: :request do
       it "includes the correct chats and contacts as props" do
         get chats_path
         expect(inertia.props[:chats].size).to eq(1)
-        expect(inertia.props[:chats].first[:id]).to eq(@chat.id)
+        expect(inertia.props[:chats].first["id"]).to eq(@chat.id)
         expect(inertia.props[:contacts].size).to eq(1)
-        expect(inertia.props[:contacts].first[:id]).to eq(user_b.id)
+        expect(inertia.props[:contacts].first["id"]).to eq(user_b.id)
       end
 
       context "with a preselected_chat in flash" do
         it "passes the preselected chat data to the frontend" do
-          # Simulate a redirect with flash data
-          get chats_path, flash: { active_chat_id: @chat.id }
+          # POST /chats redirects to the index with active_chat_id in the flash
+          post chats_path, params: { user_id: user_b.id }
+          follow_redirect!
           expect(inertia.props[:preselectedChat]).to be_present
-          expect(inertia.props[:preselectedChat][:id]).to eq(@chat.id)
+          expect(inertia.props[:preselectedChat]["id"]).to eq(@chat.id)
         end
       end
     end

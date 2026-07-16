@@ -39,9 +39,8 @@ export default function ChatList({ chats, onSelectChat, activeChat }) {
 
   const getLastMessagePreview = (chat) => {
     if (chat.last_message) {
-      return chat.last_message.body.length > 50
-        ? chat.last_message.body.substring(0, 50) + "..."
-        : chat.last_message.body;
+      const body = chat.last_message.body || "";
+      return body.length > 50 ? body.substring(0, 50) + "..." : body;
     }
     return "No messages yet";
   };
@@ -99,4 +98,5 @@ export default function ChatList({ chats, onSelectChat, activeChat }) {
 ChatList.propTypes = {
   chats: PropTypes.array.isRequired,
   onSelectChat: PropTypes.func.isRequired,
+  activeChat: PropTypes.object,
 };

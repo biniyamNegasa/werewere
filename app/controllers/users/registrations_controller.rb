@@ -47,8 +47,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # PUT /resource
   def update
-    if session[:reauthenticated_at].blank? || session[:reauthenticated_at] < 3.minutes.ago
-      session[:user_update_params] = account_update_params.to_h
+    unless recently_reauthenticated?
+      # Never stash passwords in the session cookie; the user re-enters them
+      # after re-authenticating.
+      session[:user_update_params] =
+        account_update_params.except(:password, :password_confirmation).to_h
 
       sign_out(current_user)
 
@@ -56,10 +59,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
       return
     end
 
-    update_params = session.delete(:user_update_params) || account_update_params
+    # Session round-trips stringify keys; normalize so both sources behave alike.
+    update_params = (session.delete(:user_update_params).presence || account_update_params.to_h).with_indifferent_access
 
     self.resource = resource_class.to_adapter.get!(send(:"current_#{resource_name}").to_key)
-    prev_uncofirmed_email = resource.uncofirmed_email if resource.respond_to?(:uncofirmed_email)
+    prev_unconfirmed_email = resource.unconfirmed_email if resource.respond_to?(:unconfirmed_email)
 
     if update_params[:password].blank?
       update_params.delete(:password)
@@ -71,7 +75,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     yield resource if block_given?
 
     if resource_updated
-      set_flash_message_for_update(resource, prev_uncofirmed_email)
+      set_flash_message_for_update(resource, prev_unconfirmed_email)
       bypass_sign_in resource, scope: resource_name if sign_in_after_change_password?
 
       set_flash_message :notice, :updated
@@ -107,6 +111,15 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # end
 
   protected
+
+  # The session serializer round-trips Time as an ISO 8601 string, so parse
+  # rather than compare the raw value.
+  def recently_reauthenticated?
+    reauthenticated_at = Time.zone.parse(session[:reauthenticated_at].to_s)
+    reauthenticated_at.present? && reauthenticated_at > 3.minutes.ago
+  rescue ArgumentError
+    false
+  end
 
   # If you have extra params to permit, append them to the sanitizer.
   def configure_sign_up_params

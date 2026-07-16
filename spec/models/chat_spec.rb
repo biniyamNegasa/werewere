@@ -26,7 +26,7 @@ RSpec.describe Chat, type: :model do
     expect(chat.chat_type).to eq "group_chat"
   end
 
-  it "shows messages ordered by creation date (oldest first)" do 
+  it "shows messages ordered by creation date (oldest first)" do
     chat = create(:chat)
 
     message_today = create(:message, chat: chat, created_at: Time.current)

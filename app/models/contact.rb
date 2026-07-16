@@ -4,6 +4,7 @@ class Contact < ApplicationRecord
   belongs_to :user
   belongs_to :contact, class_name: "User"
 
+  validates :contact_id, uniqueness: { scope: :user_id, message: "is already in your contacts" }
   validate :user_is_not_contact
 
   private

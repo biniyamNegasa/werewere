@@ -51,12 +51,9 @@ export default function ChatsIndex(props) {
       // Cleanup the timer if the component unmounts or if a new flash message arrives
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [props.flash]);
 
   const handleBackToList = () => {
-    if (activeChat) {
-      setActiveChat(activeChat.id);
-    }
     setActiveChat(null);
   };
 
