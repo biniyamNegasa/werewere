@@ -84,6 +84,7 @@ test:
 production:
   primary: &primary_production
     <<: *default
+    host: <%= ENV.fetch("DB_HOST", "localhost") %>
     database: werewere_production
     username: werewere
     password: <%= ENV["WEREWERE_DATABASE_PASSWORD"] %>

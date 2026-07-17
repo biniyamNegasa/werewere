@@ -145,33 +145,98 @@ want to exercise rate limits locally.
 
 ---
 
-## Deployment
+## Deployment (Kamal)
 
-To deploy this application to a production environment,
-you will need to perform the following steps:
+The app deploys with [Kamal](https://kamal-deploy.org/), configured in
+[`config/deploy.yml`](config/deploy.yml). Kamal builds the Docker image on
+your machine, pushes it to GitHub Container Registry, and runs it on the
+server behind kamal-proxy, which handles Let's Encrypt TLS and
+zero-downtime deploys. Postgres runs on the same server as a Kamal
+accessory.
 
-1. **Set Production Secrets:**
-   Set `RAILS_MASTER_KEY`, `POSTGRES_PASSWORD`, the OAuth client
-   IDs/secrets, and `DEVISE_MAILER_SENDER` on your production server.
-   Configure SMTP (Action Mailer) if you need password-reset emails.
+The steps below assume an AlmaLinux (RHEL-compatible) VPS; adapt the
+package commands for other distros.
 
-2. **Build Frontend Assets:**
+### 1. One-time server setup (as root on the VPS)
 
-   ```bash
-   RAILS_ENV=production bin/rails assets:precompile
-   ```
+```bash
+# Docker CE (AlmaLinux ships Podman by default; remove the shim if present)
+dnf -y remove podman-docker 2>/dev/null
+dnf -y install dnf-plugins-core
+dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+dnf -y install docker-ce docker-ce-cli containerd.io
+systemctl enable --now docker
 
-3. **Run Database Migrations:**
+# Open HTTP/HTTPS in firewalld
+firewall-cmd --permanent --add-service=http --add-service=https
+firewall-cmd --reload
+```
 
-   ```bash
-   RAILS_ENV=production bin/rails db:migrate
-   ```
+SELinux can stay enforcing; Kamal uses named Docker volumes, which work
+fine with it. Kamal connects as `root` over SSH by default — make sure
+your SSH key is in the server's `/root/.ssh/authorized_keys`.
 
-4. **Start the Server:**
-   Run the Rails server in production mode behind a reverse proxy
-   (a [Kamal](https://kamal-deploy.org/) config is included in
-   [`config/deploy.yml`](config/deploy.yml) as a starting point).
+### 2. DNS
 
-   ```bash
-   RAILS_ENV=production bin/rails server
-   ```
+Point an A record for your domain at the VPS IP **before** the first
+deploy — kamal-proxy needs it resolving to obtain the certificate.
+
+### 3. Fill in config/deploy.yml
+
+Replace the placeholders:
+
+- `servers.web` and `accessories.db.host` — your VPS IP
+- `proxy.host` — your domain
+
+The image name and GHCR registry settings are already configured.
+
+### 4. Secrets (on your local machine)
+
+Create a GitHub Personal Access Token (classic) with the
+`write:packages` scope for pushing images, then export everything
+[`.kamal/secrets`](.kamal/secrets) expects:
+
+```bash
+export KAMAL_REGISTRY_PASSWORD=<github PAT with write:packages>
+export POSTGRES_PASSWORD=<strong database password>
+export GITHUB_CLIENT_ID=... GITHUB_CLIENT_SECRET=...
+export GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=...
+```
+
+`RAILS_MASTER_KEY` is read from `config/master.key` automatically.
+
+Register production OAuth apps (separate from the localhost ones) with
+callback URLs `https://<your-domain>/users/auth/github/callback` and
+`https://<your-domain>/users/auth/google_oauth2/callback`.
+
+### 5. First deploy
+
+```bash
+bin/kamal setup
+```
+
+This installs Docker prerequisites on the server if needed, boots the
+Postgres accessory, builds and pushes the image, and starts the app —
+the container entrypoint runs `db:prepare`, creating and migrating all
+four databases (primary, cache, queue, cable). kamal-proxy fetches the
+TLS certificate on first request.
+
+### 6. Redeploying
+
+```bash
+bin/kamal deploy
+```
+
+Zero-downtime: the new container boots alongside the old one, passes a
+health check on `/up`, then traffic switches over.
+
+### Useful commands
+
+```bash
+bin/kamal logs          # tail app logs
+bin/kamal console       # rails console on the server
+bin/kamal dbc           # rails dbconsole
+bin/kamal shell         # bash inside the app container
+bin/kamal rollback      # revert to the previous version
+bin/kamal details       # status of app, proxy, and accessories
+```
